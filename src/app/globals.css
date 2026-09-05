@@ -49,6 +49,9 @@
 }
 
 :root {
+  --light-color: #f6f6f6;
+  --dark-color: #111111;
+  --dp-don-red: #c11012;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -127,4 +130,144 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ─── DONPROD custom fonts ─── */
+@font-face {
+  font-family: "Sporty Pro Black";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/donprod-uk-ee6ef50a/sporty-pro-black.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Heading Now";
+  font-stretch: extra-condensed;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/donprod-uk-ee6ef50a/HeadingNow36Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Heading Now";
+  font-stretch: extra-condensed;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/donprod-uk-ee6ef50a/HeadingNow37ExtraBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Heading Now";
+  font-stretch: condensed;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/donprod-uk-ee6ef50a/HeadingNow46Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Heading Now";
+  font-stretch: condensed;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/donprod-uk-ee6ef50a/HeadingNow47ExtraBold.woff2") format("woff2");
+}
+
+/* ─── DONPROD page-level design tokens ─── */
+.donprod-page {
+  --dp-light: #f6f6f6;
+  --dp-dark: #000000;
+  --dp-unselected: #868686;
+  --dp-unselected-light: silver;
+  --dp-unselected-dark: #454545;
+  --dp-grid-lines: #2a2a2a;
+  --dp-don-red: #c11012;
+  --dp-font-mono: "IBM Plex Mono", monospace;
+  --dp-font-bold: "Heading Now";
+  --dp-font-punchy: "IBM Plex Mono", monospace;
+  --dp-font-sporty: "Sporty Pro Black";
+  --dp-nav-font-size: 10.8px;
+  --dp-scroll-easing: cubic-bezier(0.25, 1, 0.5, 1);
+  --dp-bracket-easing: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* ─── DONPROD global resets for donprod-page ─── */
+.donprod-page {
+  background: #000;
+  color: #f6f6f6;
+  font-family: "IBM Plex Mono", monospace;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.donprod-page * {
+  box-sizing: border-box;
+}
+
+/* Locomotive scroll html class */
+html.has-scroll-smooth .donprod-page {
+  overflow: hidden;
+}
+
+/* ─── DONPROD scroll indicator line ─── */
+.donprod-page .scroll-line {
+  display: block;
+  height: 1px;
+  width: 20px;
+  transform-origin: left center;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+/* ─── DONPROD cursor ─── */
+.donprod-page .secondary-cursor {
+  pointer-events: none;
+  z-index: 100000;
+}
+
+.donprod-page #cursor-circle {
+  border: 1px solid #fff;
+  border-radius: 50%;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* ─── DONPROD bracket animation ─── */
+.donprod-page .bx-h {
+  width: 5px;
+  height: 1px;
+  background: #fff;
+  display: block;
+  position: absolute;
+  transform-origin: center;
+  transition: transform 1s cubic-bezier(0.87, 0, 0.13, 1);
+}
+.donprod-page .bx-v {
+  width: 1px;
+  height: 5px;
+  background: #fff;
+  display: block;
+  position: absolute;
+  transform-origin: center;
+  transition: transform 1s cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* ─── DONPROD noise overlay animation ─── */
+@keyframes dp-noise-drift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-10px, 5px); }
+  50%  { transform: translate(5px, -8px); }
+  75%  { transform: translate(-5px, 10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ─── DONPROD project tile ─── */
+.donprod-page .home_project_tile {
+  transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+}
+.donprod-page .home_project_tile.snapped {
+  transform: scaleX(1.18421);
+  opacity: 1;
+}
+.donprod-page .home_project_tile:not(.snapped) {
+  opacity: 0.2;
 }
