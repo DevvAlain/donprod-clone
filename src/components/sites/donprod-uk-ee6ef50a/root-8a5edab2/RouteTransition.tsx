@@ -46,17 +46,13 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
   );
 
   const openProject = useCallback(
-    ({ href, thumbSrc, placeholderSrc, fromRect }: ProjectOpen) => {
-      if (samePath(href, pathname) || phase !== "idle" || projectMorph) return;
-      router.prefetch(href);
+    ({ thumbSrc, placeholderSrc, fromRect }: ProjectOpen) => {
+      if (phase !== "idle" || projectMorph) return;
       if (thumbSrc && window.innerWidth >= 768) {
         setProjectMorph({ thumbSrc, placeholderSrc, fromRect });
       }
-      window.setTimeout(() => {
-        router.push(href, { scroll: false });
-      }, 0);
     },
-    [pathname, phase, projectMorph, router],
+    [phase, projectMorph],
   );
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ProjectTileProps {
   project: {
@@ -71,17 +71,13 @@ function BracketCorner({ position }: {
 }
 
 export function ProjectTile({ project, isActive, isMobile = false, index, onActivate, onTileClick, isHoveredByOther = false, isHoveredSelf = false, onTileMouseEnter, onTileMouseLeave }: ProjectTileProps) {
-  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const href = `/project/${project.slug.toLowerCase()}`;
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     onActivate?.();
-    if (onTileClick) {
-      onTileClick(event.currentTarget);
-    } else {
-      router.push(`/project/${project.slug.toLowerCase()}`);
-    }
+    onTileClick?.(event.currentTarget);
   };
 
   useEffect(() => {
@@ -110,9 +106,11 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
 
   if (isMobile) {
     return (
-      <div
+      <Link
+        href={href}
+        scroll={false}
         className="m_item__wrapper"
-        style={{ width: "100%", marginBottom: 20, cursor: "pointer", flexShrink: 0 }}
+        style={{ width: "100%", marginBottom: 20, cursor: "pointer", flexShrink: 0, color: "inherit", textDecoration: "none" }}
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -165,12 +163,14 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
           <span style={{ fontWeight: 800 }}>{project.title}</span>
           <span>{project.artist ?? ""}</span>
         </div>
-      </div>
+      </Link>
     );
   }
 
   return (
-    <div
+    <Link
+      href={href}
+      scroll={false}
       className="hpt__wrapper"
       data-project-index={index}
       style={{
@@ -182,12 +182,13 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
         flexShrink: 0,
         cursor: "pointer",
         boxSizing: "border-box",
+        color: "inherit",
+        textDecoration: "none",
       }}
       onClick={handleClick}
       onMouseEnter={() => {
         setIsHovered(true);
         onTileMouseEnter?.();
-        router.prefetch(`/project/${project.slug.toLowerCase()}`);
       }}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -338,6 +339,6 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { DonprodProject } from "@/types/donprod";
 
@@ -145,14 +146,10 @@ export function HomeArchiveView({
         const delay = isSpread ? Math.min(index * 0.028, 0.42) : Math.min(index * 0.012, 0.18);
 
         return (
-          <motion.button
+          <motion.div
             key={project.slug}
-            type="button"
             onMouseEnter={() => setHoveredSlug(project.slug)}
             onMouseLeave={() => setHoveredSlug(null)}
-            onFocus={() => setHoveredSlug(project.slug)}
-            onBlur={() => setHoveredSlug(null)}
-            onClick={(event) => onTileClick?.(project, event.currentTarget)}
             initial={{
               left: "50%",
               top: "50%",
@@ -211,6 +208,13 @@ export function HomeArchiveView({
                 : "none",
             }}
           >
+            <Link
+              href={`/project/${project.slug.toLowerCase()}`}
+              scroll={false}
+              aria-label={project.title}
+              onClick={(event) => onTileClick?.(project, event.currentTarget)}
+              style={{ position: "absolute", inset: 0, zIndex: 5 }}
+            />
             <span
               aria-hidden="true"
               style={{
@@ -278,7 +282,7 @@ export function HomeArchiveView({
                 </>
               )}
             </span>
-          </motion.button>
+          </motion.div>
         );
       })}
     </motion.div>

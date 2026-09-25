@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { DonprodProject } from "@/types/donprod";
 
@@ -10,7 +11,7 @@ interface ArchiveListItemProps {
   activeIdx: number;
   activeFilter: number;
   isFiltered: boolean;
-  archiveElementRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  archiveElementRefs: React.MutableRefObject<(HTMLElement | null)[]>;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   handleEleClicked: (idx: number, element?: HTMLElement) => void;
@@ -94,7 +95,9 @@ export function ArchiveListItem({
     // .archv_it — position: relative; width: 100%; display: flex; overflow: hidden;
     // .archive_list_wrapper > .archv_it { flex-basis: 30px; min-height: 30px; }
     // pointer-events: all overrides the parent archive_list_wrapper's pointer-events: none
-    <div
+    <Link
+      href={`/project/${item.slug.toLowerCase()}`}
+      scroll={false}
       ref={(el) => {
         archiveElementRefs.current[idx] = el;
       }}
@@ -110,6 +113,8 @@ export function ArchiveListItem({
         transition: "opacity 0.4s ease",
         cursor: "pointer",
         borderBottom: "1px solid rgba(246,246,246,0.08)",
+        color: "inherit",
+        textDecoration: "none",
       }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
@@ -271,6 +276,6 @@ export function ArchiveListItem({
           </div>
         </div>
       </motion.div>
-    </div>
+    </Link>
   );
 }

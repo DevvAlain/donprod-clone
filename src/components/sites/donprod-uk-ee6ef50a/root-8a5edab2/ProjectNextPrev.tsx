@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { DonprodProject } from "@/types/donprod";
 import { BracketsWrapper } from "./BracketsWrapper";
 import { useRouteTransition } from "./RouteTransition";
@@ -44,8 +45,9 @@ function NavTile({
   onNavigate: (project: DonprodProject) => void;
 }) {
   return (
-    <button
-      type="button"
+    <Link
+      href={`/project/${project.slug.toLowerCase()}`}
+      scroll={false}
       className={`${side}_tile np_half__wrapper ms-half`}
       aria-label={`${label} project: ${project.title}`}
       onClick={() => onNavigate(project)}
@@ -63,6 +65,8 @@ function NavTile({
         border: 0,
         background: "transparent",
         cursor: "pointer",
+        color: "inherit",
+        textDecoration: "none",
       }}
     >
       <div className="tile_left" style={{ width: "50%", height: "100%", overflow: "hidden" }}>
@@ -71,7 +75,7 @@ function NavTile({
       <div className="tile_right" style={{ width: "50%", height: "100%", overflow: "hidden" }}>
         <TileMedia project={project} />
       </div>
-    </button>
+    </Link>
   );
 }
 

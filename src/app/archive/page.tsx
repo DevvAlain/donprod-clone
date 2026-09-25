@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePublicProjects } from "@/hooks/use-public-projects";
 import { Navbar } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/Navbar";
@@ -39,7 +40,7 @@ export default function ArchivePage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isHoveringList, setIsHoveringList] = useState(false);
   const [mobOverlayMode, setMobOverlayMode] = useState(false);
-  const archiveElementRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const archiveElementRefs = useRef<(HTMLElement | null)[]>([]);
   const mobileElementRefs = useRef<(HTMLDivElement | null)[]>([]);
   const mobScrollRef = useRef<HTMLDivElement | null>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -481,7 +482,9 @@ export default function ArchivePage() {
                         />
                       ) : null}
                     </div>
-                    <button
+                    <Link
+                      href={`/project/${activeProject.slug.toLowerCase()}`}
+                      scroll={false}
                       onClick={() => handleProjectRedirect(activeIdx)}
                       style={{
                         display: "block",
@@ -497,10 +500,11 @@ export default function ArchivePage() {
                         fontSize: "10vw",
                         lineHeight: 0.85,
                         textAlign: "center",
+                        textDecoration: "none",
                       }}
                     >
                       VIEW PROJECT
-                    </button>
+                    </Link>
                     <button
                       onClick={() => setMobOverlayMode(false)}
                       style={{
