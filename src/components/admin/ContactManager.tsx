@@ -28,6 +28,7 @@ interface ContactSettings {
   footerDescription: string;
   copyrightYear: string;
   showreelUrl: string;
+  introVideoUrl: string;
   tickerText: string;
   socialLinks: SocialLink[];
   btsImages: BtsImage[];
@@ -47,6 +48,7 @@ const emptySettings: ContactSettings = {
   footerDescription: "",
   copyrightYear: "",
   showreelUrl: "",
+  introVideoUrl: "",
   tickerText: "",
   socialLinks: [],
   btsImages: [],
@@ -128,6 +130,13 @@ export function ContactManager() {
       <div className="md:col-span-2"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Showreel</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Video source</h2><p className="mt-1 text-sm text-slate-500">Paste a Vimeo URL or upload a real video file to Cloudinary.</p></div>
       <Field label="Showreel URL"><input required type="url" className={inputClass} value={settings.showreelUrl} onChange={(event) => update("showreelUrl", event.target.value)} /></Field>
       <div className="grid content-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Local file upload</span><div className="flex flex-wrap items-center gap-3"><UploadButton kind="video" label={uploading === "video" ? "Uploading…" : "Upload showreel"} disabled={Boolean(uploading)} onUpload={(file) => void upload(file, "video", (result) => update("showreelUrl", result.url))} />{settings.showreelUrl ? <a className="truncate text-xs text-[#465fff] hover:underline" href={settings.showreelUrl} target="_blank" rel="noreferrer">Open current video</a> : null}</div></div>
+    </section>
+
+    <section className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:grid-cols-2">
+      <div className="md:col-span-2"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Intro</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Background video</h2><p className="mt-1 text-sm text-slate-500">Loops under the I8 STUDIOVN letter loader. Upload a real mp4/webm, or leave empty for a black intro.</p></div>
+      <Field label="Intro video URL"><input type="url" className={inputClass} value={settings.introVideoUrl} onChange={(event) => update("introVideoUrl", event.target.value)} placeholder="https://…" /></Field>
+      <div className="grid content-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Local file upload</span><div className="flex flex-wrap items-center gap-3"><UploadButton kind="video" label={uploading === "video" ? "Uploading…" : "Upload intro video"} disabled={Boolean(uploading)} onUpload={(file) => void upload(file, "video", (result) => update("introVideoUrl", result.url))} />{settings.introVideoUrl ? <a className="truncate text-xs text-[#465fff] hover:underline" href={settings.introVideoUrl} target="_blank" rel="noreferrer">Open current video</a> : null}</div></div>
+      {settings.introVideoUrl ? <video className="md:col-span-2 max-h-56 w-full rounded-xl bg-black object-cover" src={settings.introVideoUrl} muted playsInline controls /> : null}
     </section>
 
     <section className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:grid-cols-2">

@@ -16,6 +16,7 @@ export const defaultContactSettings: ContactSettings = {
   footerDescription: "DOUBLE OR NOTHING PRODUCTIONS",
   copyrightYear: "2026",
   showreelUrl: "https://vimeo.com/1173388074",
+  introVideoUrl: "",
   tickerText: "DOUBLE OR NOTHING PRODUCTIONS",
   socialLinks: [
     { label: "TIKTOK", url: "https://www.tiktok.com/@donprod" },
@@ -41,6 +42,7 @@ function fromRow(row: {
   footerDescription: string;
   copyrightYear: string;
   showreelUrl: string;
+  introVideoUrl: string;
   tickerText: string;
   socialLinks: unknown;
   btsImages: unknown;
@@ -57,6 +59,7 @@ function fromRow(row: {
     footerDescription: row.footerDescription,
     copyrightYear: row.copyrightYear,
     showreelUrl: row.showreelUrl,
+    introVideoUrl: row.introVideoUrl,
     tickerText: row.tickerText,
     socialLinks: asJsonArray<ContactSettingsInput["socialLinks"][number]>(row.socialLinks),
     btsImages: asJsonArray<ContactSettingsInput["btsImages"][number]>(row.btsImages),

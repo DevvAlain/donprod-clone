@@ -23,6 +23,7 @@ export const contactSettingsSchema = z.object({
   footerDescription: z.string().trim().min(1).max(240),
   copyrightYear: z.string().trim().regex(/^\d{4}$/),
   showreelUrl: safeUrl,
+  introVideoUrl: z.string().trim().max(2048).refine((value) => value === "" || /^https?:\/\//i.test(value), "Only HTTP(S) URLs are allowed."),
   tickerText: z.string().trim().min(1).max(240),
   socialLinks: z.array(socialLinkSchema).max(12),
   btsImages: z.array(btsImageSchema).max(100),

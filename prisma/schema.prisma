@@ -57,6 +57,7 @@ model ContactSettings {
   footerDescription String   @db.VarChar(240)
   copyrightYear     String   @db.VarChar(10)
   showreelUrl       String   @db.VarChar(2048)
+  introVideoUrl     String   @default("") @db.VarChar(2048)
   tickerText        String   @db.VarChar(240)
   socialLinks       Json
   btsImages         Json

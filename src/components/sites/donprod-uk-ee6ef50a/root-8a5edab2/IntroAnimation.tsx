@@ -89,7 +89,7 @@ const LETTER_ANIMS = [
   "fromRightOutTop",
 ] as const;
 
-const LETTER_CHARS = "I8STUDIOVN".split("");
+const LETTER_CHARS = "I8 STUDIOVN".replace(/\s/g, "").split("");
 
 function easeInOutExpo(x: number): number {
   if (x === 0) return 0;
@@ -171,8 +171,8 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   const [percentVal, setPercentVal] = useState(0);
   const [animOutContent, setAnimOutContent] = useState(false);
   const [wrapperVisible, setWrapperVisible] = useState(true);
-  const [videoReady, setVideoReady] = useState(false);
   const [letterIndex, setLetterIndex] = useState(0);
+  const [introSrc, setIntroSrc] = useState("");
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const doneRef = useRef(false);
@@ -187,6 +187,26 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   };
 
   useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/contact", { cache: "no-store" })
+      .then((response) => response.json() as Promise<{ success?: boolean; data?: { introVideoUrl?: string } }>)
+      .then((payload) => {
+        const url = payload.success ? payload.data?.introVideoUrl?.trim() : "";
+        if (!cancelled && url && /^https?:\/\//i.test(url)) setIntroSrc(url);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !introSrc) return;
+    video.play().catch(() => undefined);
+  }, [introSrc]);
+
+  useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       schedule(() => {
@@ -198,30 +218,15 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
       return;
     }
 
-    const video = videoRef.current;
-    if (!video || !video.currentSrc) {
-      setVideoReady(true);
-      return;
-    }
-    const handleCanPlay = () => setVideoReady(true);
-    video.addEventListener("canplaythrough", handleCanPlay);
-    video.play().catch(() => setVideoReady(true));
-    return () => video.removeEventListener("canplaythrough", handleCanPlay);
-  }, [onComplete]);
-
-  useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || !videoReady) return;
-
     function tick(now: number) {
       if (startTimeRef.current === null) startTimeRef.current = now;
       const elapsed = (now - startTimeRef.current) / 1000;
       const prog = Math.min(elapsed / COUNTER_DURATION, 1);
       const curveProg = easeInOutExpo(prog);
 
-      setLetterIndex(Math.min(LAST_LETTER, Math.floor((elapsed / COUNTER_DURATION) * LETTER_CHARS.length)));
+      setLetterIndex(Math.min(LAST_LETTER, Math.floor(prog * LETTER_CHARS.length)));
 
-      if (curveProg >= 0.99 && !doneRef.current) {
+      if (prog >= 1 && !doneRef.current) {
         doneRef.current = true;
         setLetterIndex(LAST_LETTER);
         setAnimOutContent(true);
@@ -252,7 +257,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [onComplete, videoReady]);
+  }, [onComplete]);
 
   useEffect(() => {
     const timers = timerRefs.current;
@@ -266,27 +271,6 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   return (
     <>
       <style>{CSS_KEYFRAMES}</style>
-
-      {/* Background video layer */}
-      <video
-        ref={videoRef}
-        muted
-        autoPlay
-        playsInline
-        loop
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100dvh",
-          objectFit: "cover",
-          zIndex: 999,
-          opacity: wrapperVisible ? 1 : 0,
-          transition: "opacity 0.6s ease",
-          pointerEvents: "none",
-        }}
-      />
 
       <motion.svg
         aria-hidden="true"
@@ -323,6 +307,25 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
           background: "#000",
         }}
       >
+        {introSrc ? (
+          <video
+            ref={videoRef}
+            src={introSrc}
+            muted
+            autoPlay
+            playsInline
+            loop
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: 0,
+              pointerEvents: "none",
+            }}
+          />
+        ) : null}
         {/* Layer 1 — Cube animation */}
         <div
           style={{
