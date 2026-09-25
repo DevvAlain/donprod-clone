@@ -69,22 +69,31 @@ export function ProjectMainVideo({ project }: Props) {
     if (isNativeVideo) {
       const video = videoRef.current;
       if (!video) return;
+      if (muted) {
+        setMuted(false);
+        if (video.paused || video.ended) video.play().catch(() => undefined);
+        return;
+      }
       if (video.paused || video.ended) video.play().catch(() => undefined);
       else video.pause();
       return;
     }
 
     if (vimeoEmbedUrl) {
-      if (isPlaying) {
-        sendVimeo("pause");
-      } else {
-        setIsWaiting(true);
+      if (muted) {
+        setIsWaiting(!isPlaying);
         setMuted(false);
         sendVimeo("setVolume", 1);
+        if (!isPlaying) sendVimeo("play");
+        return;
+      }
+      if (isPlaying) sendVimeo("pause");
+      else {
+        setIsWaiting(true);
         sendVimeo("play");
       }
     }
-  }, [isNativeVideo, vimeoEmbedUrl, isPlaying, sendVimeo]);
+  }, [isNativeVideo, vimeoEmbedUrl, isPlaying, muted, sendVimeo]);
 
   const toggleFullscreen = useCallback(() => {
     setIsFullscreen((value) => !value);
