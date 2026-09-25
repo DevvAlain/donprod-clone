@@ -100,6 +100,10 @@ export function ProjectTransition({ thumbSrc, placeholderSrc, fromRect, onAnimat
 
   return (
     <>
+      <div
+        aria-hidden="true"
+        style={{ position: "fixed", inset: 0, zIndex: 98, pointerEvents: "auto" }}
+      />
       <motion.div
         className="proj_transition__wrapper"
         style={{

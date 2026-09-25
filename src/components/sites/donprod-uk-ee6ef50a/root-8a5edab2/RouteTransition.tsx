@@ -33,13 +33,13 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
     (href: string) => {
       if (samePath(href, pathname) || phase !== "idle" || projectMorph) return;
       if (href.startsWith("/admin") || pathname.startsWith("/admin")) {
-        router.push(href);
+        router.push(href, { scroll: false });
         return;
       }
       pendingHref.current = href;
       setPhase("cover");
       window.setTimeout(() => {
-        router.push(href);
+        router.push(href, { scroll: false });
       }, 480);
     },
     [pathname, phase, projectMorph, router],
@@ -52,7 +52,9 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
       if (thumbSrc && window.innerWidth >= 768) {
         setProjectMorph({ thumbSrc, placeholderSrc, fromRect });
       }
-      router.push(href);
+      window.setTimeout(() => {
+        router.push(href, { scroll: false });
+      }, 0);
     },
     [pathname, phase, projectMorph, router],
   );
