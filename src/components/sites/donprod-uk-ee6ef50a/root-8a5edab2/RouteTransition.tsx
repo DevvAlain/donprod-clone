@@ -2,9 +2,18 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ProjectTransition, type TransitionOrigin } from "./ProjectTransition";
+
+interface ProjectOpen {
+  href: string;
+  thumbSrc: string;
+  placeholderSrc: string;
+  fromRect?: TransitionOrigin;
+}
 
 interface RouteTransitionContextValue {
   navigate: (href: string) => void;
+  openProject: (opts: ProjectOpen) => void;
 }
 
 const RouteTransitionContext = createContext<RouteTransitionContextValue | null>(null);
@@ -18,10 +27,11 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const pendingHref = useRef<string | null>(null);
   const [phase, setPhase] = useState<"idle" | "cover" | "reveal">("idle");
+  const [projectMorph, setProjectMorph] = useState<Omit<ProjectOpen, "href"> | null>(null);
 
   const navigate = useCallback(
     (href: string) => {
-      if (samePath(href, pathname) || phase !== "idle") return;
+      if (samePath(href, pathname) || phase !== "idle" || projectMorph) return;
       if (href.startsWith("/admin") || pathname.startsWith("/admin")) {
         router.push(href);
         return;
@@ -32,7 +42,19 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
         router.push(href);
       }, 480);
     },
-    [pathname, phase, router],
+    [pathname, phase, projectMorph, router],
+  );
+
+  const openProject = useCallback(
+    ({ href, thumbSrc, placeholderSrc, fromRect }: ProjectOpen) => {
+      if (samePath(href, pathname) || phase !== "idle" || projectMorph) return;
+      router.prefetch(href);
+      if (thumbSrc && window.innerWidth >= 768) {
+        setProjectMorph({ thumbSrc, placeholderSrc, fromRect });
+      }
+      router.push(href);
+    },
+    [pathname, phase, projectMorph, router],
   );
 
   useEffect(() => {
@@ -54,8 +76,16 @@ export function RouteTransitionProvider({ children }: { children: React.ReactNod
   }, [phase]);
 
   return (
-    <RouteTransitionContext.Provider value={{ navigate }}>
+    <RouteTransitionContext.Provider value={{ navigate, openProject }}>
       {children}
+      {projectMorph ? (
+        <ProjectTransition
+          thumbSrc={projectMorph.thumbSrc}
+          placeholderSrc={projectMorph.placeholderSrc}
+          fromRect={projectMorph.fromRect}
+          onAnimationEnd={() => setProjectMorph(null)}
+        />
+      ) : null}
       <div
         className={`dp-route-transition${phase === "cover" ? " is-cover" : ""}${phase === "reveal" ? " is-reveal" : ""}`}
         aria-hidden="true"

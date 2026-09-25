@@ -187,6 +187,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
       onMouseEnter={() => {
         setIsHovered(true);
         onTileMouseEnter?.();
+        router.prefetch(`/project/${project.slug.toLowerCase()}`);
       }}
       onMouseLeave={() => {
         setIsHovered(false);

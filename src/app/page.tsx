@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import type { DonprodProject } from "@/types/donprod";
 import { usePublicProjects } from "@/hooks/use-public-projects";
 import { Navbar } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/Navbar";
 import { ScrollList } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ScrollList";
-import { ProjectTransition } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ProjectTransition";
 import { HomeAuxOverlay } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/HomeAuxOverlay";
+import { useRouteTransition } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/RouteTransition";
 import { FloatingVideo } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/FloatingVideo";
 import { CustomCursor } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/CustomCursor";
 import { NoiseOverlay } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/NoiseOverlay";
@@ -18,13 +17,6 @@ const INTRO_STORAGE_PREFIX = "intro-seen-";
 
 function getIntroStorageKey() {
   return `${INTRO_STORAGE_PREFIX}${window.performance.timeOrigin}`;
-}
-
-interface TransitionState {
-  slug: string;
-  thumbSrc: string;
-  placeholderSrc: string;
-  fromRect?: { x: number; y: number; width: number; height: number };
 }
 
 function EmptyProjectsState({ isMobile }: { isMobile: boolean }) {
@@ -59,7 +51,7 @@ function EmptyProjectsState({ isMobile }: { isMobile: boolean }) {
 }
 
 export default function DonprodHomePage() {
-  const router = useRouter();
+  const { openProject } = useRouteTransition();
   const { projects, isLoading, error } = usePublicProjects();
   const [activeIndex, setActiveIndex] = useState(0);
   const [filter, setFilter] = useState<number | null>(null);
@@ -71,7 +63,6 @@ export default function DonprodHomePage() {
   const [archiveExiting, setArchiveExiting] = useState(false);
   const [modeLocked, setModeLocked] = useState(false);
   const modeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [transition, setTransition] = useState<TransitionState | null>(null);
   const [overlayTarget, setOverlayTarget] = useState<DOMRect | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -109,13 +100,9 @@ export default function DonprodHomePage() {
 
   const handleTileClick = (project: DonprodProject, element?: HTMLElement) => {
     const thumbSrc = project.thumbDesktop || project.thumbMobile || project.thumbnails?.desktop || "";
-    if (isMobile || !thumbSrc) {
-      router.push(`/project/${project.slug.toLowerCase()}`);
-      return;
-    }
     const rect = element?.getBoundingClientRect();
-    setTransition({
-      slug: project.slug.toLowerCase(),
+    openProject({
+      href: `/project/${project.slug.toLowerCase()}`,
       thumbSrc,
       placeholderSrc: project.thumbPlaceholder || thumbSrc,
       fromRect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : undefined,
@@ -314,19 +301,6 @@ export default function DonprodHomePage() {
 
           {/* Fixed noise grain — z:100 */}
           <NoiseOverlay />
-
-          {/* Page transition overlay — z:100+ */}
-          {transition && (
-            <ProjectTransition
-              thumbSrc={transition.thumbSrc}
-              placeholderSrc={transition.placeholderSrc}
-              fromRect={transition.fromRect}
-              onAnimationEnd={() => {
-                router.push(`/project/${transition.slug}`);
-                setTransition(null);
-              }}
-            />
-          )}
 
           {/* Custom cursor — z:100000 */}
           <CustomCursor />

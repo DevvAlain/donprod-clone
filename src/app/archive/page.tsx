@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePublicProjects } from "@/hooks/use-public-projects";
 import { Navbar } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/Navbar";
 import { ArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ArchiveListItem";
 import { MobArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/MobArchiveListItem";
 import { ArchiveBackground } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ArchiveBackground";
-import { ProjectTransition } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ProjectTransition";
+import { useRouteTransition } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/RouteTransition";
 
 // Filters: 0 = all, 1 = music, 2 = commercial
 const FILTERS = [
@@ -33,12 +32,11 @@ const listWrapperVariants = {
 };
 
 export default function ArchivePage() {
-  const router = useRouter();
+  const { openProject } = useRouteTransition();
   const { projects, isLoading, error } = usePublicProjects();
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeFilter, setActiveFilter] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [transition, setTransition] = useState<{ slug: string; thumbSrc: string; placeholderSrc: string; fromRect?: { x: number; y: number; width: number; height: number } } | null>(null);
   const [isHoveringList, setIsHoveringList] = useState(false);
   const [mobOverlayMode, setMobOverlayMode] = useState(false);
   const archiveElementRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -68,13 +66,9 @@ export default function ArchivePage() {
   const handleProjectRedirect = (selected: number, element?: HTMLElement) => {
     const project = projects[selected];
     const thumbSrc = project.thumbDesktop || project.thumbMobile || project.thumbnails?.desktop || "";
-    if (isMobile || !thumbSrc) {
-      router.push(`/project/${project.slug}`);
-      return;
-    }
     const rect = element?.getBoundingClientRect();
-    setTransition({
-      slug: project.slug.toLowerCase(),
+    openProject({
+      href: `/project/${project.slug.toLowerCase()}`,
       thumbSrc,
       placeholderSrc: project.thumbPlaceholder || thumbSrc,
       fromRect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : undefined,
@@ -311,18 +305,6 @@ export default function ArchivePage() {
               })}
             </div>
           </div>
-          {/* Page transition overlay — same animation as homepage tile click */}
-          {transition && (
-            <ProjectTransition
-              thumbSrc={transition.thumbSrc}
-              placeholderSrc={transition.placeholderSrc}
-              fromRect={transition.fromRect}
-              onAnimationEnd={() => {
-                router.push(`/project/${transition.slug}`);
-                setTransition(null);
-              }}
-            />
-          )}
         </>
       ) : (
         /* ===== MOBILE LAYOUT ===== */

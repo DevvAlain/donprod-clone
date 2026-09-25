@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { DonprodProject } from "@/types/donprod";
 import { BracketsWrapper } from "./BracketsWrapper";
-import { ProjectTransition } from "./ProjectTransition";
+import { useRouteTransition } from "./RouteTransition";
 
 interface Props {
   prevProject?: DonprodProject;
@@ -106,17 +104,17 @@ function NavTitle({ label, side }: { label: string; side: "prev" | "next" }) {
 }
 
 export function ProjectNextPrev({ prevProject, nextProject }: Props) {
-  const router = useRouter();
-  const [transitionProject, setTransitionProject] = useState<DonprodProject | null>(null);
+  const { openProject } = useRouteTransition();
 
   if (!prevProject || !nextProject) return null;
 
-  const navigate = (project: DonprodProject) => {
-    if (!project.thumbDesktop) {
-      router.push(`/project/${project.slug.toLowerCase()}`);
-      return;
-    }
-    setTransitionProject(project);
+  const goTo = (project: DonprodProject) => {
+    const thumbSrc = project.thumbDesktop || project.thumbMobile || "";
+    openProject({
+      href: `/project/${project.slug.toLowerCase()}`,
+      thumbSrc,
+      placeholderSrc: project.thumbPlaceholder || thumbSrc,
+    });
   };
 
   return (
@@ -144,11 +142,11 @@ export function ProjectNextPrev({ prevProject, nextProject }: Props) {
         >
           <BracketsWrapper zIndex={6} />
           <div className="np_tiles__wrapper" style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
-            <NavTile project={prevProject} label="PREV" side="prev" onNavigate={navigate} />
+            <NavTile project={prevProject} label="PREV" side="prev" onNavigate={goTo} />
             <div className="np_diver_wrapper" style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "10%", height: "100%", zIndex: 4 }}>
               <div className="np_diver" style={{ width: "100%", height: "100%", background: "var(--dark-color, #000)" }} />
             </div>
-            <NavTile project={nextProject} label="NEXT" side="next" onNavigate={navigate} />
+            <NavTile project={nextProject} label="NEXT" side="next" onNavigate={goTo} />
             <NavTitle label="PREV" side="prev" />
             <NavTitle label="NEXT" side="next" />
             <div className="np_gl__wrapper" aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
@@ -158,13 +156,6 @@ export function ProjectNextPrev({ prevProject, nextProject }: Props) {
           </div>
         </div>
       </div>
-      {transitionProject ? (
-        <ProjectTransition
-          thumbSrc={transitionProject.thumbDesktop}
-          placeholderSrc={transitionProject.thumbPlaceholder}
-          onAnimationEnd={() => router.push(`/project/${transitionProject.slug.toLowerCase()}`)}
-        />
-      ) : null}
     </>
   );
 }
