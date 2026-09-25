@@ -27,6 +27,6 @@ export const contactSettingsSchema = z.object({
   tickerText: z.string().trim().min(1).max(240),
   socialLinks: z.array(socialLinkSchema).max(12),
   btsImages: z.array(btsImageSchema).max(100),
-}).strict();
+});
 
 export type ContactSettingsInput = z.infer<typeof contactSettingsSchema>;
