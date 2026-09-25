@@ -15,18 +15,17 @@ export function HeroSection() {
         whiteSpace: "nowrap",
         overflow: "hidden",
         width: "100%",
-        height: "50%",
+        height: "68%",
         zIndex: 5,
       }}
     >
-      {/* hero_img__wrapper: height:90% of main-hero__wrapper, flex row centered */}
       <div
         className="hero_img__wrapper"
         style={{
           alignItems: "center",
           display: "flex",
           flexDirection: "row",
-          height: "90%",
+          height: "100%",
           justifyContent: "center",
           overflow: "hidden",
           position: "relative",
