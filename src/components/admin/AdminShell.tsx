@@ -36,7 +36,7 @@ export function AdminShell({ children, title, actions }: { children: React.React
   const sidebar = (
     <aside className="flex h-full w-[280px] flex-col bg-[#111827] px-5 py-6 text-white">
       <Link href="/admin" className="mb-12 block font-[family-name:var(--font-punchy)] text-3xl tracking-[-0.08em]">
-        DN-PRD<span className="text-slate-500">/CMS</span>
+        I8<span className="text-slate-500">/CMS</span>
       </Link>
       <div className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Workspace</div>
       <nav className="space-y-1" aria-label="Admin navigation">
@@ -56,7 +56,7 @@ export function AdminShell({ children, title, actions }: { children: React.React
     <div className="hidden min-h-screen md:fixed md:inset-y-0 md:left-0 md:block">{sidebar}</div>
     <header className="sticky top-0 z-20 flex min-h-[76px] items-center justify-between border-b border-slate-200 bg-[#f7f8fa]/95 px-4 backdrop-blur sm:px-6 md:ml-[280px] md:px-10">
       <button onClick={() => setOpen(true)} className="rounded-lg p-2 text-slate-600 hover:bg-white md:hidden" aria-label="Open navigation"><Menu size={20} /></button>
-      <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">DONPROD CMS</p><h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-900">{title}</h1></div>
+      <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">I8 CMS</p><h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-900">{title}</h1></div>
       <div>{actions}</div>
     </header>
     {open && <div className="fixed inset-0 z-50 bg-slate-950/60 md:hidden"><div className="relative h-full w-[280px]"><button onClick={() => setOpen(false)} className="absolute right-4 top-5 z-10 rounded-lg p-2 text-white" aria-label="Close navigation"><X size={20} /></button>{sidebar}</div></div>}

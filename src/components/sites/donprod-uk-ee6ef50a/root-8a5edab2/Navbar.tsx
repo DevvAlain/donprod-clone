@@ -137,7 +137,7 @@ export function Navbar() {
               onClick={() => navigate("/")}
               style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
             >
-              <NavItem>DN-PRD</NavItem>
+              <NavItem>I8 STUDIO</NavItem>
             </button>
           </div>
 

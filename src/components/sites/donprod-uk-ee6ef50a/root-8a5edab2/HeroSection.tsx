@@ -37,7 +37,7 @@ export function HeroSection() {
         <img
           className="home-logo-upper"
           src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-upper.png"
-          alt="DONPROD"
+          alt="I8 STUDIO"
           style={{
             height: "100%",
             width: "auto",
@@ -47,36 +47,7 @@ export function HeroSection() {
         />
       </div>
 
-      {/* lower-logo-wrapper: position:absolute; bottom:10%; height:13%; width:100% */}
-      <div
-        className="lower-logo-wrapper"
-        style={{
-          alignItems: "center",
-          bottom: "10%",
-          display: "flex",
-          flexDirection: "row",
-          height: "13%",
-          justifyContent: "center",
-          overflow: "hidden",
-          position: "absolute",
-          width: "100%",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="home-lower-logo"
-          src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-lower.png"
-          alt=""
-          style={{
-            display: "inline-block",
-            height: "100%",
-            width: "auto",
-            transformOrigin: "bottom",
-            transform: "translate3d(0px, 0%, 0px) scale3d(1, 1, 1)",
-            opacity: 1,
-          }}
-        />
-      </div>
+      {/* I8 single logo — lower part hidden, upper logo is the I8 mark */}
     </div>
   );
 }

@@ -10,8 +10,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DONPROD",
-  description: "Double Or Nothing Productions Portfolio Site",
+  title: "I8 STUDIO",
+  description: "I8 Studio Portfolio",
 };
 
 export default function RootLayout({

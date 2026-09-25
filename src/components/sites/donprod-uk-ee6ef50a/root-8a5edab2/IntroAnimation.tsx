@@ -624,7 +624,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
                 animate={animOutContent ? "exit" : "animate"}
                 style={{ display: "inline-block" }}
               >
-                @DONPROD
+                @I8STUDIO
               </motion.span>
             </div>
           </div>
