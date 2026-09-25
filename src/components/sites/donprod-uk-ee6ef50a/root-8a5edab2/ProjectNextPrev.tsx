@@ -1,134 +1,170 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { DonprodProject } from "@/types/donprod";
 import { BracketsWrapper } from "./BracketsWrapper";
+import { ProjectTransition } from "./ProjectTransition";
 
 interface Props {
-  prevProject: DonprodProject;
-  nextProject: DonprodProject;
+  prevProject?: DonprodProject;
+  nextProject?: DonprodProject;
+}
+
+function TileMedia({ project }: { project: DonprodProject }) {
+  const videoSrc = project.gifStyling.mobileVideo || project.mobileVideo;
+
+  return videoSrc ? (
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      poster={project.thumbDesktop}
+      aria-label={project.title}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    >
+      <source src={videoSrc} type="video/mp4" />
+    </video>
+  ) : (
+    <div
+      aria-label={project.title}
+      style={{ width: "100%", height: "100%", background: `center / cover url(${project.thumbDesktop})` }}
+    />
+  );
 }
 
 function NavTile({
   project,
   label,
+  side,
+  onNavigate,
 }: {
   project: DonprodProject;
   label: string;
+  side: "prev" | "next";
+  onNavigate: (project: DonprodProject) => void;
 }) {
-  const router = useRouter();
-  const mediaBase = `https://www.donprod.uk/media/main/${project.slug}`;
-  const videoSrc = `${mediaBase}/trim.mp4`;
+  return (
+    <button
+      type="button"
+      className={`${side}_tile np_half__wrapper ms-half`}
+      aria-label={`${label} project: ${project.title}`}
+      onClick={() => onNavigate(project)}
+      style={{
+        position: "absolute",
+        top: 0,
+        left: side === "prev" ? 0 : undefined,
+        right: side === "next" ? 0 : undefined,
+        display: "flex",
+        flexDirection: "row",
+        width: "45%",
+        height: "100%",
+        overflow: "hidden",
+        padding: 0,
+        border: 0,
+        background: "transparent",
+        cursor: "pointer",
+      }}
+    >
+      <div className="tile_left" style={{ width: "50%", height: "100%", overflow: "hidden" }}>
+        <TileMedia project={project} />
+      </div>
+      <div className="tile_right" style={{ width: "50%", height: "100%", overflow: "hidden" }}>
+        <TileMedia project={project} />
+      </div>
+    </button>
+  );
+}
 
+function NavTitle({ label, side }: { label: string; side: "prev" | "next" }) {
   return (
     <div
-      style={{ flex: "0 0 50%", position: "relative", cursor: "pointer" }}
-      onClick={() => router.push(`/project/${project.slug.toLowerCase()}`)}
+      className={`np_meta__wrapper ${side}_title`}
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: side === "prev" ? "22.5%" : "77.5%",
+        zIndex: 3,
+        transform: "translate(-50%, -50%)",
+        fontFamily: '"Sporty Pro Black", sans-serif',
+        fontSize: "clamp(48px, 7vw, 96px)",
+        lineHeight: 0.85,
+        color: "#f6f6f6",
+        mixBlendMode: "difference",
+        pointerEvents: "none",
+        textTransform: "uppercase",
+      }}
     >
-      {/* Label */}
-      <div
-        className="np_meta__wrapper"
-        style={{
-          fontFamily: '"Sporty Pro Black", sans-serif',
-          fontSize: "clamp(20px, 3vw, 48px)",
-          color: "#f6f6f6",
-          letterSpacing: "0.05em",
-          padding: "8px 12px",
-        }}
-      >
-        <div className="np_title__wrapper">
-          {label.split("").map((char, i) => (
-            <span key={i} style={{ display: "inline-block", zIndex: 1 }}>
-              {char}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Half-tile videos */}
-      <div
-        className="np_half__wrapper"
-        style={{
-          display: "flex",
-          width: "100%",
-          aspectRatio: "2 / 1",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        <div
-          className="tile_left"
-          style={{ flex: "0 0 50%", overflow: "hidden" }}
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          >
-            <source src={videoSrc} />
-          </video>
-        </div>
-        <div
-          className="tile_right"
-          style={{ flex: "0 0 50%", overflow: "hidden" }}
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          >
-            <source src={videoSrc} />
-          </video>
-        </div>
+      <div className="np_title__wrapper" style={{ margin: 15, whiteSpace: "nowrap" }}>
+        {label.split("").map((character, index) => (
+          <span key={`${character}-${index}`} style={{ display: "inline-block" }}>{character}</span>
+        ))}
       </div>
     </div>
   );
 }
 
 export function ProjectNextPrev({ prevProject, nextProject }: Props) {
+  const router = useRouter();
+  const [transitionProject, setTransitionProject] = useState<DonprodProject | null>(null);
+
+  if (!prevProject || !nextProject) return null;
+
+  const navigate = (project: DonprodProject) => {
+    if (!project.thumbDesktop) {
+      router.push(`/project/${project.slug.toLowerCase()}`);
+      return;
+    }
+    setTransitionProject(project);
+  };
+
   return (
-    <div
-      className="project_next__wrapper"
-      style={{ opacity: 1, marginTop: 80, padding: "0 max(20px, 5vw)" }}
-    >
+    <>
       <div
-        className="np_section__wrapper"
-        style={{ position: "relative", width: "100%" }}
+        className="project_next__wrapper"
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "calc(56.25vw - 78.75px)",
+          maxHeight: "calc(100dvh - 180px)",
+          opacity: 1,
+        }}
       >
-        <BracketsWrapper zIndex={6} />
-
         <div
-          className="np_tiles__wrapper"
-          style={{ display: "flex", flexDirection: "row" }}
+          className="np_section__wrapper"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translate3d(-50%, 0, 0)",
+            width: "100%",
+            height: "100%",
+          }}
         >
-          <NavTile project={prevProject} label="PREV" />
-
-          {/* Divider */}
-          <div
-            className="np_diver_wrapper"
-            style={{
-              display: "flex",
-              alignItems: "stretch",
-              flexShrink: 0,
-            }}
-          >
-            <div
-              className="np_diver"
-              style={{
-                width: 1,
-                background: "#2a2a2a",
-                alignSelf: "stretch",
-              }}
-            />
+          <BracketsWrapper zIndex={6} />
+          <div className="np_tiles__wrapper" style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
+            <NavTile project={prevProject} label="PREV" side="prev" onNavigate={navigate} />
+            <div className="np_diver_wrapper" style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "10%", height: "100%", zIndex: 4 }}>
+              <div className="np_diver" style={{ width: "100%", height: "100%", background: "var(--dark-color, #000)" }} />
+            </div>
+            <NavTile project={nextProject} label="NEXT" side="next" onNavigate={navigate} />
+            <NavTitle label="PREV" side="prev" />
+            <NavTitle label="NEXT" side="next" />
+            <div className="np_gl__wrapper" aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
+              <div className="np_gl__upper" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 1, background: "var(--grid-lines, #383838)" }} />
+              <div className="np_gl__lower" style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 1, background: "var(--grid-lines, #383838)" }} />
+            </div>
           </div>
-
-          <NavTile project={nextProject} label="next" />
         </div>
       </div>
-    </div>
+      {transitionProject ? (
+        <ProjectTransition
+          thumbSrc={transitionProject.thumbDesktop}
+          placeholderSrc={transitionProject.thumbPlaceholder}
+          onAnimationEnd={() => router.push(`/project/${transitionProject.slug.toLowerCase()}`)}
+        />
+      ) : null}
+    </>
   );
 }

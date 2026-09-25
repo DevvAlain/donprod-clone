@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectVisibility {
+  VISIBLE
+  HIDDEN
+}
+
+enum ProjectVideoType {
+  YOUTUBE
+  CLOUDINARY
+  VIMEO
+}
+
+enum TvcType {
+  HIGHLIGHTED
+  CSR
+}
+
+model Admin {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(320)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model TvcItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  type          TvcType
+  title         String   @db.VarChar(240)
+  description   String?  @db.Text
+  imageUrl      String?  @db.Text
+  imagePublicId String?  @db.Text
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type, displayOrder])
+}
+
+model ContactSettings {
+  id                String   @id @default("default") @db.VarChar(32)
+  readyText         String   @db.VarChar(120)
+  designerLabel     String   @db.VarChar(240)
+  designerUrl       String   @db.VarChar(2048)
+  locationName      String   @db.VarChar(120)
+  locationAddress   String   @db.VarChar(240)
+  coordinates       String   @db.VarChar(240)
+  footerBrand       String   @db.VarChar(120)
+  footerDescription String   @db.VarChar(240)
+  copyrightYear     String   @db.VarChar(10)
+  showreelUrl       String   @db.VarChar(2048)
+  tickerText        String   @db.VarChar(240)
+  socialLinks       Json
+  btsImages         Json
+  updatedAt         DateTime @updatedAt
+}
+
+model Project {
+  id                      String            @id @default(uuid()) @db.Uuid
+  slug                    String            @unique @db.VarChar(120)
+  title                   String            @db.VarChar(240)
+  artist                  String?           @db.VarChar(240)
+  videoType               ProjectVideoType?
+  videoUrl                String?           @db.Text
+  videoPublicId           String?           @db.Text
+  aspectRatio             Decimal           @default(1.7778) @db.Decimal(8, 4)
+  dateLabel               String?           @db.VarChar(120)
+  runtimeSeconds          Int?
+  locations               String[]          @default([]) @db.Text
+  coordinates             String[]          @default([]) @db.Text
+  description             String?           @db.Text
+  keywords                String[]          @default([]) @db.Text
+  content                 Json?
+  thumbnailDesktopUrl     String?           @db.Text
+  thumbnailDesktopPublicId String?          @db.Text
+  thumbnailMobileUrl      String?           @db.Text
+  thumbnailMobilePublicId String?           @db.Text
+  thumbnailPlaceholderUrl String?           @db.Text
+  thumbnailPlaceholderPublicId String?      @db.Text
+  mobilePreviewUrl        String?           @db.Text
+  seoTitle                String?           @db.VarChar(240)
+  seoDescription          String?           @db.Text
+  ogImageUrl              String?           @db.Text
+  visibility              ProjectVisibility @default(VISIBLE)
+  displayOrder            Int               @default(0)
+  viewCount               Int               @default(0)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  tags                    ProjectTag[]
+  credits                 ProjectCredit[]
+  stills                  ProjectStill[]
+  viewDedupes             ProjectViewDedup[]
+
+  @@index([visibility, displayOrder])
+  @@index([createdAt])
+}
+
+model Tag {
+  id        String       @id @default(uuid()) @db.Uuid
+  slug      String       @unique @db.VarChar(80)
+  name      String       @db.VarChar(120)
+  createdAt DateTime     @default(now())
+  projects  ProjectTag[]
+}
+
+model ProjectTag {
+  projectId String  @db.Uuid
+  tagId     String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Restrict)
+
+  @@id([projectId, tagId])
+  @@index([tagId])
+}
+
+model ProjectCredit {
+  id           String  @id @default(uuid()) @db.Uuid
+  projectId    String  @db.Uuid
+  label        String  @db.VarChar(120)
+  value        String  @db.Text
+  displayOrder Int     @default(0)
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, displayOrder])
+}
+
+model ProjectStill {
+  id             String  @id @default(uuid()) @db.Uuid
+  projectId      String  @db.Uuid
+  imageUrl       String  @db.Text
+  placeholderUrl String? @db.Text
+  publicId       String? @db.Text
+  displayOrder   Int     @default(0)
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, displayOrder])
+}
+
+model ProjectViewDedup {
+  id          String   @id @default(uuid()) @db.Uuid
+  projectId   String   @db.Uuid
+  visitorHash String   @db.VarChar(128)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, visitorHash])
+  @@index([expiresAt])
+}

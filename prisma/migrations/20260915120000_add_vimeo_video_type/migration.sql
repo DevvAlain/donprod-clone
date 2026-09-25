@@ -1,0 +1,1 @@
+ALTER TYPE "ProjectVideoType" ADD VALUE 'VIMEO';

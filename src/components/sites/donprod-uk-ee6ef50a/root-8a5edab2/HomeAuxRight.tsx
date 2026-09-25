@@ -88,11 +88,9 @@ export function HomeAuxRight({
     "translate3d(5.5px, 5.5px, 0px) scale(0.8125, 0.875)",
   ];
 
-  // Clicking dot 0 -> list mode, dot 2 -> archive mode
-  const handleDotClick = (i: number) => {
+  const handleViewChange = () => {
     if (!onViewModeChange) return;
-    if (i === 0) onViewModeChange("list");
-    else if (i === 2) onViewModeChange("archive");
+    onViewModeChange(viewMode === "list" ? "archive" : "list");
   };
 
   return (
@@ -110,30 +108,43 @@ export function HomeAuxRight({
       }}
     >
       {/* Display selector dots — absolute, middle-right of column, matching reference HTML transforms */}
-      <motion.div
+      <motion.button
+        type="button"
+        aria-label={viewMode === "list" ? "Show project archive" : "Show project list"}
+        onClick={handleViewChange}
+        disabled={!onViewModeChange}
         style={{
           position: "absolute",
           top: "50%",
           right: 0,
-          width: "26px",
-          height: "48px",
+          width: "36px",
+          height: "60px",
+          padding: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: 0,
+          background: "transparent",
+          cursor: onViewModeChange ? "pointer" : "default",
+          pointerEvents: "auto",
         }}
         initial={{ transform: "translate3d(25px, -50%, 0)" }}
         animate={{ transform: "translate3d(0px, -50%, 0)" }}
         transition={{ delay: 0, duration: 2, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div
+        <span
+          aria-hidden="true"
           style={{
             display: "flex",
             flexDirection: "column",
             width: "26px",
             height: "48px",
+            pointerEvents: "none",
           }}
         >
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              onClick={() => handleDotClick(i)}
               style={{
                 display: "block",
                 width: "16px",
@@ -141,14 +152,12 @@ export function HomeAuxRight({
                 transform: dotTransforms[i],
                 background: dotColors(i),
                 flexShrink: 0,
-                cursor: onViewModeChange ? "pointer" : "default",
                 transition: "background 0.2s",
-                pointerEvents: "auto",
               }}
             />
           ))}
-        </div>
-      </motion.div>
+        </span>
+      </motion.button>
 
       {/* Artist name */}
       <motion.div

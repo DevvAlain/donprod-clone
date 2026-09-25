@@ -1,12 +1,16 @@
 // Auto-generated from original source bundle - 29 projects
 export interface DonprodProject {
+  id?: string;
   slug: string;
   title: string;
   artist: string | null;
   feature: string[] | null;
   vimeo: string;
+  videoType?: "YOUTUBE" | "CLOUDINARY" | "VIMEO" | null;
+  videoUrl?: string | null;
+  videoPublicId?: string | null;
   aspectRatio: number;
-  tags: number[];
+  tags: Array<string | number>;
   credits: Record<string, string>;
   meta: {
     date: string;
@@ -32,12 +36,21 @@ export interface DonprodProject {
   thumbMobile: string;
   thumbDesktop: string;
   thumbPlaceholder: string;
+  thumbnailDesktopPublicId?: string | null;
+  thumbnailMobilePublicId?: string | null;
+  thumbnailPlaceholderPublicId?: string | null;
   mobileVideo: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImageUrl?: string | null;
+  visibility?: "VISIBLE" | "HIDDEN";
+  viewCount?: number;
+  updatedAt?: string;
   gifStyling: {
     backgroundImage: string;
     mobileVideo: string;
   };
-  stills: Array<{ backgroundImage: string; placeholder: string }>;
+  stills: Array<{ backgroundImage: string; placeholder: string; publicId?: string | null }>;
   numberStills?: number;
 }
 

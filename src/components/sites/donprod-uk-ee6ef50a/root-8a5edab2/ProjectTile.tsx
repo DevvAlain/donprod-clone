@@ -10,13 +10,13 @@ interface ProjectTileProps {
     artist: string | null;
     thumbMobile: string;
     thumbPlaceholder: string;
-    mobileVideo: string;
+    mobileVideo?: string;
   };
   isActive: boolean;
   isMobile?: boolean;
   index: number;
   onActivate?: () => void;
-  onTileClick?: () => void;
+  onTileClick?: (element: HTMLElement) => void;
   isHoveredByOther?: boolean;
   isHoveredSelf?: boolean;
   onTileMouseEnter?: () => void;
@@ -70,15 +70,15 @@ function BracketCorner({ position }: {
   );
 }
 
-export function ProjectTile({ project, isActive, isMobile = false, index: _index, onActivate, onTileClick, isHoveredByOther = false, isHoveredSelf = false, onTileMouseEnter, onTileMouseLeave }: ProjectTileProps) {
+export function ProjectTile({ project, isActive, isMobile = false, index, onActivate, onTileClick, isHoveredByOther = false, isHoveredSelf = false, onTileMouseEnter, onTileMouseLeave }: ProjectTileProps) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     onActivate?.();
     if (onTileClick) {
-      onTileClick();
+      onTileClick(event.currentTarget);
     } else {
       router.push(`/project/${project.slug.toLowerCase()}`);
     }
@@ -111,36 +111,60 @@ export function ProjectTile({ project, isActive, isMobile = false, index: _index
   if (isMobile) {
     return (
       <div
-        className="hpt__wrapper"
-        style={{ width: "100%", height: "20dvh", position: "relative", overflow: "hidden", cursor: "pointer", flexShrink: 0 }}
+        className="m_item__wrapper"
+        style={{ width: "100%", marginBottom: 20, cursor: "pointer", flexShrink: 0 }}
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={project.thumbMobile}
-          alt={project.title}
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-        />
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
+        <div
+          className="m_it_thumb__wrapper"
+          style={{ width: "100%", aspectRatio: "1.9 / 1", position: "relative", overflow: "hidden", background: "#101010" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={project.thumbMobile || project.thumbPlaceholder}
+            alt={project.title}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {project.mobileVideo ? (
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: isActive ? 1 : isHovered ? 0.7 : 0,
+                transition: "opacity 0.3s",
+              }}
+            >
+              <source src={project.mobileVideo} type="video/mp4" />
+            </video>
+          ) : null}
+        </div>
+        <div
+          className="m_it_meta__wrapper"
           style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: isActive ? 1 : isHovered ? 0.7 : 0,
-            transition: "opacity 0.3s",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            overflow: "hidden",
+            paddingTop: 7,
+            fontFamily: '"IBM Plex Mono", monospace',
+            fontSize: 12,
+            textTransform: "uppercase",
+            color: "#f6f6f6",
           }}
         >
-          <source src={project.mobileVideo} type="video/mp4" />
-        </video>
+          <span style={{ fontWeight: 800 }}>{project.title}</span>
+          <span>{project.artist ?? ""}</span>
+        </div>
       </div>
     );
   }
@@ -148,6 +172,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index: _index
   return (
     <div
       className="hpt__wrapper"
+      data-project-index={index}
       style={{
         display: "block",
         width: "100%",
@@ -248,7 +273,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index: _index
                   </div>
                 </div>
 
-                <video
+                {project.mobileVideo ? <video
                   ref={videoRef}
                   className="grid-item__hover"
                   autoPlay
@@ -267,7 +292,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index: _index
                   }}
                 >
                   <source src={project.mobileVideo} type="video/mp4" />
-                </video>
+                </video> : null}
               </div>
             </div>
 

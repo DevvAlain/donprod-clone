@@ -15,6 +15,7 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
 
 # Debug
 npm-debug.log*
@@ -47,3 +48,11 @@ next-env.d.ts
 
 # Local temp files
 temp/
+
+# Local screenshots / reverse-engineer dumps
+.playwright-mcp/
+clone-*.png
+original-*.png
+final-*.png
+donprod-homepage.png
+reference/

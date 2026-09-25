@@ -11,6 +11,13 @@ interface ArchiveBackgroundProps {
 }
 
 export function ArchiveBackground({ project, activeIdx, isVisible }: ArchiveBackgroundProps) {
+  const previewSrc =
+    project && /\.(mp4|webm|mov|m4v)(?:\?|$)/i.test(project.gifStyling.mobileVideo)
+      ? project.gifStyling.mobileVideo
+      : project && /\.(mp4|webm|mov|m4v)(?:\?|$)/i.test(project.mobileVideo)
+        ? project.mobileVideo
+        : null;
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -86,17 +93,36 @@ export function ArchiveBackground({ project, activeIdx, isVisible }: ArchiveBack
                 transformOrigin: "center",
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={project.thumbnails.desktop}
-                alt={project.title}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
+              {previewSrc ? (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster={project.thumbnails.desktop}
+                  aria-label={project.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                >
+                  <source src={previewSrc} type="video/mp4" />
+                </video>
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={project.thumbnails.desktop}
+                  alt={project.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { useRouteTransition } from "./RouteTransition";
 
 function NavItem({ children }: { children: React.ReactNode }) {
   return (
@@ -25,6 +27,7 @@ function NavItem({ children }: { children: React.ReactNode }) {
 }
 
 export function Navbar() {
+  const { navigate } = useRouteTransition();
   return (
     <>
       <style>{`
@@ -67,9 +70,26 @@ export function Navbar() {
         /* Hover: reveal all brackets */
         .dp-nav-item:hover .dp-bx-h { transform: scaleX(1); }
         .dp-nav-item:hover .dp-bx-v { transform: scaleY(1); }
+        @media (max-width: 767px) {
+          .dp-nav-root {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 38px;
+            overflow: visible;
+          }
+          .dp-nav-upper {
+            padding: 12px 12px 0 !important;
+            height: auto !important;
+            white-space: nowrap !important;
+          }
+          .dp-nav-right { gap: 12px !important; }
+          .dp-nav-lower { display: none !important; }
+          .dp-nav-label { font-size: 10px; }
+        }
       `}</style>
 
       <div
+        className="dp-nav-root"
         style={{
           position: "fixed",
           width: "100vw",
@@ -80,13 +100,15 @@ export function Navbar() {
           justifyContent: "space-between",
           alignItems: "center",
           fontFamily: '"IBM Plex Mono", monospace',
-          fontSize: "10.8px",
+          fontSize: "var(--dp-nav-font-size)",
           color: "#f6f6f6",
+          mixBlendMode: "difference",
           pointerEvents: "none",
         }}
       >
         {/* Upper bar */}
         <div
+          className="dp-nav-upper"
           style={{
             display: "flex",
             flexDirection: "row",
@@ -105,43 +127,63 @@ export function Navbar() {
             style={{
               display: "flex",
               flexDirection: "row",
-              width: 477.5,
+              minWidth: 0,
               height: 18,
               position: "relative",
             }}
           >
-            <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
+            >
               <NavItem>DN-PRD</NavItem>
-            </Link>
+            </button>
           </div>
 
           {/* Dead center column */}
-          <div style={{ display: "block", width: 405, height: 0 }} />
+          <div style={{ display: "block", flex: "1 1 120px", minWidth: 40, height: 0 }} />
 
-          {/* Right wrap — CONTACT + ARCHIVE */}
+          {/* Right wrap — CONTACT + ARCHIVE + TVC */}
           <div
+            className="dp-nav-right"
             style={{
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-end",
-              gap: "62px",
-              width: 477.5,
+              gap: "40px",
+              minWidth: 0,
               height: 18,
               position: "relative",
             }}
           >
-            <NavItem>CONTACT</NavItem>
-            <Link
-              href="/archive"
-              style={{ color: "inherit", textDecoration: "none" }}
+            <button
+              type="button"
+              onClick={() => navigate("/contact")}
+              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
+            >
+              <NavItem>CONTACT</NavItem>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/archive")}
+              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
             >
               <NavItem>ARCHIVE</NavItem>
-            </Link>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/tvc")}
+              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
+            >
+              <NavItem>TVC</NavItem>
+            </button>
           </div>
         </div>
 
         {/* Lower bar */}
         <div
+          className="dp-nav-lower"
           style={{
             display: "flex",
             flexDirection: "row",

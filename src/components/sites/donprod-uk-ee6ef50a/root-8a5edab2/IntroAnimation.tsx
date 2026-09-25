@@ -9,41 +9,87 @@ interface IntroAnimationProps {
 
 const CSS_KEYFRAMES = `
 @keyframes firstCharTransition {
-  0%   { opacity: 0; transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg); }
-  50%  { opacity: 1; transform: translateX(0) rotateY(0) rotateX(0) rotate(0); }
-  100% { opacity: 0.5; transform: translateY(-100%) rotateY(0) rotateX(0) rotate(0); }
+  0%  { opacity: 0; transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg); }
+  50% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+  100% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
 }
 @keyframes fromBottomOutRight {
-  0%   { opacity: 0; transform: translateY(100%) rotateY(0) rotateX(-90deg) rotate(0); }
-  50%  { opacity: 1; transform: translateY(0) rotateY(0) rotateX(0) rotate(0); }
-  100% { opacity: 0.5; transform: translateX(100%) rotateY(90deg) rotateX(0) rotate(0); }
+  0%  { opacity: 0; transform: translateY(100%) rotateY(0deg) rotateX(-90deg) rotate(0deg); }
+  50% { opacity: 1; transform: translateY(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
 }
 @keyframes fromLeftOutTop {
-  0%   { opacity: 0; transform: translateX(-100%) rotateY(-90deg) rotateX(0) rotate(0); }
-  50%  { opacity: 1; transform: translateX(0) rotateY(0) rotateX(0) rotate(0); }
-  100% { opacity: 0.5; transform: translateY(-100%) rotateY(0) rotateX(0) rotate(0); }
+  0%  { opacity: 0; transform: translateX(-100%) rotateY(-90deg) rotateX(0deg) rotate(0deg); }
+  50% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+  100% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
 }
 @keyframes fromBottomOutLeft {
-  0%   { opacity: 0; transform: translateY(100%) rotateY(0) rotateX(-90deg) rotate(0); }
-  50%  { opacity: 1; transform: translateY(0) rotateY(0) rotateX(0) rotate(0); }
-  100% { opacity: 0.5; transform: translateX(-100%) rotateY(-90deg) rotateX(0) rotate(0); }
+  0%  { opacity: 0; transform: translateY(100%) rotateY(0deg) rotateX(-90deg) rotate(0deg); }
+  50% { opacity: 1; transform: translateY(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
 }
 @keyframes fromRightOutTop {
-  0%   { opacity: 0; transform: translateX(100%) rotateY(90deg) rotateX(0) rotate(0); }
-  50%  { opacity: 1; transform: translateX(0) rotateY(0) rotateX(0) rotate(0); }
-  100% { opacity: 0.5; transform: translateY(-100%) rotateY(0) rotateX(0) rotate(0); }
+  0%  { opacity: 0; transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg); }
+  50% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+  100% { opacity: 1; transform: translateX(0) rotateY(0deg) rotateX(0deg) rotate(0deg); }
+}
+.loader-cube {
+  font-family: "sporty pro black", sans-serif;
+  font-size: 60px;
+  height: 60px;
+  position: relative;
+  width: 60px;
+}
+.loader-cube span {
+  left: 50%;
+  position: absolute;
+  top: 53%;
+  transform: translate(-50%, -50%);
+}
+.loader-char {
+  height: 100%;
+  line-height: 1;
+  position: absolute;
+  width: 100%;
+}
+.firstChar {
+  animation-name: firstCharTransition;
+  transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg);
+  transform-origin: left bottom;
+}
+.fromBottomOutRight {
+  animation-name: fromBottomOutRight;
+  animation-fill-mode: forwards;
+  transform: translateY(100%) rotateY(0deg) rotateX(-90deg) rotate(0deg);
+  transform-origin: left top;
+}
+.fromLeftOutTop {
+  animation-name: fromLeftOutTop;
+  transform: translateX(-100%) rotateY(-90deg) rotateX(0deg) rotate(0deg);
+  transform-origin: right bottom;
+}
+.fromBottomOutLeft {
+  animation-name: fromBottomOutLeft;
+  animation-fill-mode: forwards;
+  transform: translateY(100%) rotateY(0deg) rotateX(-90deg) rotate(0deg);
+  transform-origin: right top;
+}
+.fromRightOutTop {
+  animation-name: fromRightOutTop;
+  transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg);
+  transform-origin: left bottom;
 }
 `;
 
-const LETTER_CONFIGS: Array<{ char: string; anim: string; delay: number }> = [
-  { char: "D", anim: "firstCharTransition",  delay: 0   },
-  { char: "O", anim: "fromBottomOutRight",   delay: 0.6 },
-  { char: "N", anim: "fromLeftOutTop",       delay: 1.2 },
-  { char: "P", anim: "fromBottomOutLeft",    delay: 1.8 },
-  { char: "R", anim: "fromRightOutTop",      delay: 2.4 },
-  { char: "O", anim: "fromBottomOutLeft",    delay: 3.0 },
-  { char: "D", anim: "fromRightOutTop",      delay: 3.6 },
-];
+const LETTER_ANIMS = [
+  "firstCharTransition",
+  "fromBottomOutRight",
+  "fromLeftOutTop",
+  "fromBottomOutLeft",
+  "fromRightOutTop",
+] as const;
+
+const LETTER_CHARS = "I8STUDIOVN".split("");
 
 function easeInOutExpo(x: number): number {
   if (x === 0) return 0;
@@ -52,8 +98,15 @@ function easeInOutExpo(x: number): number {
   return (2 - Math.pow(2, -20 * x + 10)) / 2;
 }
 
-const VIDEO_IN_START = 4.7;
-const COUNTER_DURATION = VIDEO_IN_START - 1; // 3.7s
+const LETTER_HOLD = 0.55;
+const COUNTER_DURATION = LETTER_CHARS.length * LETTER_HOLD;
+const VIDEO_IN_START = COUNTER_DURATION + 1;
+const LAST_LETTER = LETTER_CHARS.length - 1;
+const LETTER_CONFIGS: Array<{ char: string; anim: string; delay: number }> = LETTER_CHARS.map((char, index) => ({
+  char,
+  anim: LETTER_ANIMS[index % LETTER_ANIMS.length],
+  delay: (COUNTER_DURATION / LETTER_CHARS.length) * index,
+}));
 
 const EASE_SPRING: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const EASE_OUT:   [number, number, number, number] = [0.87, 0, 0.13, 1];
@@ -118,27 +171,65 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   const [percentVal, setPercentVal] = useState(0);
   const [animOutContent, setAnimOutContent] = useState(false);
   const [wrapperVisible, setWrapperVisible] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
+  const [letterIndex, setLetterIndex] = useState(0);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const doneRef = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const clipperAnimRef = useRef<number | null>(null);
+  const timerRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const schedule = (callback: () => void, delay: number) => {
+    const timer = setTimeout(callback, delay);
+    timerRefs.current.push(timer);
+    return timer;
+  };
 
   useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      schedule(() => {
+        if (!doneRef.current) {
+          doneRef.current = true;
+          onComplete();
+        }
+      }, 100);
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video || !video.currentSrc) {
+      setVideoReady(true);
+      return;
+    }
+    const handleCanPlay = () => setVideoReady(true);
+    video.addEventListener("canplaythrough", handleCanPlay);
+    video.play().catch(() => setVideoReady(true));
+    return () => video.removeEventListener("canplaythrough", handleCanPlay);
+  }, [onComplete]);
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || !videoReady) return;
+
     function tick(now: number) {
       if (startTimeRef.current === null) startTimeRef.current = now;
-      const elapsed = (now - startTimeRef.current) / 1000; // seconds
-
+      const elapsed = (now - startTimeRef.current) / 1000;
       const prog = Math.min(elapsed / COUNTER_DURATION, 1);
       const curveProg = easeInOutExpo(prog);
 
+      setLetterIndex(Math.min(LAST_LETTER, Math.floor((elapsed / COUNTER_DURATION) * LETTER_CHARS.length)));
+
       if (curveProg >= 0.99 && !doneRef.current) {
         doneRef.current = true;
+        setLetterIndex(LAST_LETTER);
         setAnimOutContent(true);
-        setTimeout(() => setPercentVal(100), 500);
-        // fade out wrapper after videoInStart
+        schedule(() => setPercentVal(100), 500);
         const remaining = Math.max((VIDEO_IN_START - elapsed) * 1000, 0);
-        setTimeout(() => {
+        schedule(() => {
           setWrapperVisible(false);
-          setTimeout(onComplete, 600);
+          schedule(onComplete, 600);
         }, remaining + 300);
         return;
       }
@@ -161,11 +252,61 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [onComplete]);
+  }, [onComplete, videoReady]);
+
+  useEffect(() => {
+    const timers = timerRefs.current;
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      if (clipperAnimRef.current !== null) cancelAnimationFrame(clipperAnimRef.current);
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   return (
     <>
       <style>{CSS_KEYFRAMES}</style>
+
+      {/* Background video layer */}
+      <video
+        ref={videoRef}
+        muted
+        autoPlay
+        playsInline
+        loop
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100dvh",
+          objectFit: "cover",
+          zIndex: 999,
+          opacity: wrapperVisible ? 1 : 0,
+          transition: "opacity 0.6s ease",
+          pointerEvents: "none",
+        }}
+      />
+
+      <motion.svg
+        aria-hidden="true"
+        viewBox="0 0 1920 1080"
+        preserveAspectRatio="none"
+        style={{ position: "fixed", inset: 0, width: "100vw", height: "100dvh", zIndex: 1001, pointerEvents: "none", opacity: animOutContent ? 1 : 0 }}
+      >
+        <motion.path
+          fill="#000"
+          d="M0 1080V0H1920V1079.5C1920 1079.5 1917 1079.5 1024 1081C1 1080 0 1080 0 1080Z"
+          animate={animOutContent ? {
+            d: [
+              "M0 1080V0H1920V1079.5C1920 1079.5 1917 1079.5 1024 1081C1 1080 0 1080 0 1080Z",
+              "M0 582.5V0H1920V582.5C1920 582.5 1537.8 369 982.952 369C428.108 369 0 582.5 0 582.5Z",
+              "M0 -6V0H1920.5V-8C1920.5 -8 1445 -12 977 -12C509 -12 0 -6 0 -6Z",
+            ],
+            transition: { duration: 1, delay: 1, times: [0, 0.5, 1], ease: "easeInOut" },
+          } : undefined}
+        />
+      </motion.svg>
 
       {/* Outer clipper — fades out at the end */}
       <div
@@ -204,45 +345,25 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               justifyContent: "center",
             }}
           >
-            {/* loader-cube: 60×60 relative container for all letters stacked */}
-            <div
-              style={{
-                position: "relative",
-                width: 60,
-                height: 60,
-              }}
-            >
-              {LETTER_CONFIGS.map(({ char, anim, delay }, idx) => (
-                <div
-                  key={idx}
-                  className="loader-char"
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    lineHeight: 1,
-                    animationName: anim,
-                    animationDuration: "1.2s",
-                    animationDelay: `${delay}s`,
-                    animationFillMode: "both",
-                    animationTimingFunction: "cubic-bezier(0.83, 0, 0.17, 1)",
-                    fontFamily: '"Sporty Pro Black", sans-serif',
-                    fontSize: 60,
-                    color: "#fff",
-                  }}
-                >
-                  <span
+            {/* loader-cube container */}
+            <div className="loader-cube">
+              {(() => {
+                const current = LETTER_CONFIGS[letterIndex];
+                return (
+                  <div
+                    key={`${letterIndex}-${current.char}`}
+                    className={`loader-char ${current.anim}`}
                     style={{
-                      position: "absolute",
-                      left: "50%",
-                      top: "53%",
-                      transform: "translate(-50%, -50%)",
+                      animationDuration: "1.4s",
+                      animationDelay: "0s",
+                      animationTimingFunction: "cubic-bezier(0.83, 0, 0.17, 1)",
+                      animationFillMode: "both",
                     }}
                   >
-                    {char}
-                  </span>
-                </div>
-              ))}
+                    <span>{current.char}</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

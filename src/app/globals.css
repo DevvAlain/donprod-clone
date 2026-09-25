@@ -132,6 +132,63 @@
   }
 }
 
+.dp-route-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  perspective: 1400px;
+  perspective-origin: 50% 42%;
+  opacity: 0;
+}
+
+.dp-route-transition.is-cover,
+.dp-route-transition.is-reveal {
+  opacity: 1;
+}
+
+.dp-rt-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.dp-rt-plane {
+  position: absolute;
+  inset: 0;
+  background: #0a0a0a;
+  opacity: 0;
+  transform: translate3d(0, 0, -420px) scale(0.74);
+  transform-origin: 50% 50%;
+}
+
+.dp-rt-plane:nth-child(1) { background: #050505; }
+.dp-rt-plane:nth-child(2) { background: #111; }
+.dp-rt-plane:nth-child(3) { background: #f6f6f6; }
+
+.dp-route-transition.is-cover .dp-rt-plane {
+  animation: dp-rt-in 0.58s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+.dp-route-transition.is-cover .dp-rt-plane:nth-child(2) { animation-delay: .07s; }
+.dp-route-transition.is-cover .dp-rt-plane:nth-child(3) { animation-delay: .14s; }
+
+.dp-route-transition.is-reveal .dp-rt-plane {
+  animation: dp-rt-out 0.7s cubic-bezier(.7, 0, .3, 1) forwards;
+}
+.dp-route-transition.is-reveal .dp-rt-plane:nth-child(1) { animation-delay: .12s; }
+.dp-route-transition.is-reveal .dp-rt-plane:nth-child(2) { animation-delay: .06s; }
+.dp-route-transition.is-reveal .dp-rt-plane:nth-child(3) { animation-delay: 0s; }
+
+@keyframes dp-rt-in {
+  0% { transform: translate3d(0, 8%, 520px) scale(1.22); opacity: 0; filter: blur(12px); }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; filter: blur(0); }
+}
+
+@keyframes dp-rt-out {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; filter: blur(0); }
+  100% { transform: translate3d(0, -6%, -560px) scale(0.78); opacity: 0; filter: blur(10px); }
+}
+
 /* ─── DONPROD custom fonts ─── */
 @font-face {
   font-family: "Sporty Pro Black";
@@ -186,7 +243,7 @@
   --dp-font-bold: "Heading Now";
   --dp-font-punchy: "IBM Plex Mono", monospace;
   --dp-font-sporty: "Sporty Pro Black";
-  --dp-nav-font-size: 10.8px;
+  --dp-nav-font-size: 13px;
   --dp-scroll-easing: cubic-bezier(0.25, 1, 0.5, 1);
   --dp-bracket-easing: cubic-bezier(0.87, 0, 0.13, 1);
 }
@@ -199,6 +256,16 @@
   overflow: hidden;
   width: 100vw;
   height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .donprod-page {
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 }
 
 .donprod-page * {

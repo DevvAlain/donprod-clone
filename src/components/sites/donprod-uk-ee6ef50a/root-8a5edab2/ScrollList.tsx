@@ -11,17 +11,8 @@ interface ScrollListProps {
   activeIndex: number;
   onActiveChange: (index: number) => void;
   filter: number | null;
-  onTileClick?: (project: DonprodProject) => void;
-}
-
-const BASE_URL = "https://www.donprod.uk/media/main";
-
-function getThumbPlaceholder(slug: string): string {
-  return `${BASE_URL}/${slug}/thumbnails/placeholder.webp`;
-}
-
-function getMobileVideo(slug: string): string {
-  return `${BASE_URL}/${slug}/trim_mobile.mp4`;
+  onTileClick?: (project: DonprodProject, element: HTMLElement) => void;
+  onFirstTileReady?: (rect: DOMRect) => void;
 }
 
 const SPACER_COUNT = 2;
@@ -32,6 +23,7 @@ export function ScrollList({
   onActiveChange,
   filter,
   onTileClick,
+  onFirstTileReady,
 }: ScrollListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const innerContentRef = useRef<HTMLDivElement>(null);
@@ -49,6 +41,22 @@ export function ScrollList({
   useEffect(() => {
     tileRefs.current = tileRefs.current.slice(0, projects.length);
   }, [projects.length]);
+
+  useEffect(() => {
+    if (!onFirstTileReady || !projects.length) return;
+
+    const report = () => {
+      const firstTile = tileRefs.current[0];
+      if (firstTile) onFirstTileReady(firstTile.getBoundingClientRect());
+    };
+
+    const frame = requestAnimationFrame(report);
+    window.addEventListener("resize", report);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", report);
+    };
+  }, [onFirstTileReady, projects.length, isMobile]);
 
   // IntersectionObserver for mobile active tile detection
   const handleIntersection = useCallback(
@@ -135,11 +143,9 @@ export function ScrollList({
       slug: project.slug,
       title: project.title,
       artist: project.artist,
-      thumbMobile: project.thumbMobile.startsWith("http")
-        ? project.thumbMobile
-        : `${BASE_URL}/${project.slug}/thumbnails/mobile.webp`,
-      thumbPlaceholder: project.thumbPlaceholder ?? getThumbPlaceholder(project.slug),
-      mobileVideo: project.mobileVideo ?? getMobileVideo(project.slug),
+      thumbMobile: project.thumbMobile,
+      thumbPlaceholder: project.thumbPlaceholder,
+      mobileVideo: project.mobileVideo || undefined,
     };
 
     return (
@@ -162,7 +168,7 @@ export function ScrollList({
           isMobile={isMobile}
           index={i + 1}
           onActivate={() => onActiveChange(i)}
-          onTileClick={onTileClick ? () => onTileClick(projects[i]) : undefined}
+          onTileClick={onTileClick ? (element) => onTileClick(projects[i], element) : undefined}
           isHoveredSelf={hoveredIndex === i}
           isHoveredByOther={hoveredIndex !== null && hoveredIndex !== i}
           onTileMouseEnter={() => {
@@ -175,20 +181,87 @@ export function ScrollList({
   });
 
   if (isMobile) {
+    const scrollTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
     return (
-      <div
-        className="home_content_wrapper"
-        style={{ width: "100%", height: "auto" }}
-      >
-        <div
-          className="vertical_project_wrapper"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-          }}
-        >
-          {tileList}
+      <div className="homepage_wrapper" style={{ width: "100%", minHeight: "100dvh", background: "#000" }}>
+        <div className="m_items__wrapper" style={{ padding: "60px 20px 0", width: "100%" }}>
+          <div
+            className="mob_hero__wrapper"
+            style={{
+              position: "relative",
+              width: "100%",
+              margin: "30px 0",
+              paddingBottom: 10,
+              textAlign: "center",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="home-upper-logo"
+              src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-upper.png"
+              alt="DON"
+              style={{ display: "block", width: "90%", maxWidth: "90%", height: "auto", margin: "0 auto" }}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="home-lower-logo"
+              src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-lower.png"
+              alt="PROD"
+              style={{ display: "block", width: "42%", height: "auto", margin: "8px auto 0" }}
+            />
+          </div>
+          <div className="vertical_project_wrapper" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+            {tileList}
+          </div>
+          <div
+            className="m_home_footer"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 120,
+              marginBottom: 120,
+              fontFamily: '"Heading Now", sans-serif',
+            }}
+          >
+            <button
+              type="button"
+              onClick={scrollTop}
+              style={{
+                border: 0,
+                background: "transparent",
+                color: "#f6f6f6",
+                fontFamily: '"Heading Now", sans-serif',
+                fontSize: "14vw",
+                fontStretch: "condensed",
+                fontWeight: 800,
+                lineHeight: 0.8,
+                padding: "5px 5px 2px",
+                cursor: "pointer",
+              }}
+            >
+              BACK TO THE TOP
+            </button>
+            <div
+              className="m-footer-socials"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "100%",
+                marginTop: 25,
+                fontSize: "4vw",
+                fontFamily: '"IBM Plex Mono", monospace',
+              }}
+            >
+              <a href="https://www.instagram.com/donprod/?hl=en" target="_blank" rel="noreferrer" style={{ color: "#f6f6f6", textDecoration: "none" }}>INSTA</a>
+              <a href="https://www.tiktok.com/@donprod?lang=en" target="_blank" rel="noreferrer" style={{ color: "#f6f6f6", textDecoration: "none" }}>TIKTOK</a>
+              <a href="https://vimeo.com/donprod" target="_blank" rel="noreferrer" style={{ color: "#f6f6f6", textDecoration: "none" }}>VIMEO</a>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -13,7 +13,7 @@ interface ArchiveListItemProps {
   archiveElementRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
-  handleEleClicked: (idx: number) => void;
+  handleEleClicked: (idx: number, element?: HTMLElement) => void;
 }
 
 // Entrance/exit animation for .a_li_wrapper — archv_it has overflow:hidden so it clips the slide
@@ -113,7 +113,7 @@ export function ArchiveListItem({
       }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      onClick={() => handleEleClicked(idx)}
+      onClick={(event) => handleEleClicked(idx, event.currentTarget)}
     >
       {/* .a_li_wrapper (+ .p_selected when active)
           align-items: center; color: var(--light-color); display: flex;

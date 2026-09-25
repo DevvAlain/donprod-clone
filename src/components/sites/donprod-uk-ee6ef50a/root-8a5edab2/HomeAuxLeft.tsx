@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 interface HomeAuxLeftProps {
-  projects: { title: string; tags: number[] }[];
+  projects: { title: string; tags: Array<string | number> }[];
   activeIndex: number;
   totalCount: number;
   activeFilter: number | null;

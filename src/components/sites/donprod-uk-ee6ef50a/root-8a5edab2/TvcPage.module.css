@@ -1,0 +1,250 @@
+.page {
+  min-height: 100dvh;
+  background: #fff;
+  color: #000;
+}
+
+.about {
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding-bottom: 88px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 50px 0 30px;
+  background: #fff;
+}
+
+.kicker {
+  color: #000;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.title {
+  color: #000;
+  font-weight: 700;
+  font-size: 72px;
+  line-height: 1;
+  margin: 22px 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.tabs {
+  position: sticky;
+  top: 70px;
+  z-index: 10;
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background: #fff;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tab {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #000;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 6px 2px 8px;
+  cursor: pointer;
+}
+
+.tab:hover,
+.tabActive {
+  color: #00c7b4;
+}
+
+.tabActive {
+  border-bottom-color: #00c7b4;
+}
+
+.list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 0 0;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 56px;
+}
+
+.lines {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+.lines::before,
+.lines::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #000;
+  opacity: 0.1;
+}
+
+.postTitle {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 16px;
+  color: #000;
+  max-width: 70vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imageWrap {
+  width: 100%;
+  max-width: 960px;
+  margin: 14px auto;
+}
+
+.postImg {
+  display: block;
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+  margin: 0 auto;
+}
+
+.desc {
+  width: 100%;
+  max-width: 960px;
+  margin: 16px auto 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.descText {
+  font-size: 14px;
+  line-height: 1.75;
+  text-align: justify;
+  color: #000;
+  margin: 0;
+}
+
+.descText + .descText {
+  margin-top: 14px;
+}
+
+.meta {
+  margin-top: 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+}
+
+.status {
+  max-width: 960px;
+  width: 100%;
+  padding: 32px 16px;
+  text-align: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 1100px) {
+  .title {
+    font-size: 54px;
+  }
+
+  .postTitle {
+    font-size: 20px;
+  }
+
+  .imageWrap,
+  .desc,
+  .postImg {
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 700px) {
+  .header {
+    padding: 28px 0 18px;
+  }
+
+  .title {
+    font-size: 38px;
+  }
+
+  .tabs {
+    top: 58px;
+    gap: 16px;
+    padding: 14px 12px;
+  }
+
+  .tab {
+    font-size: 11px;
+  }
+
+  .lines {
+    padding: 0 10px;
+  }
+
+  .postTitle {
+    font-size: 16px;
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .imageWrap {
+    padding: 0 15px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .postImg,
+  .desc {
+    max-width: 100%;
+  }
+
+  .desc {
+    padding: 0 15px;
+  }
+
+  .descText {
+    font-size: 13px;
+  }
+}

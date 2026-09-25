@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { DONPROD_PROJECTS } from "@/types/donprod";
+import { usePublicProjects } from "@/hooks/use-public-projects";
 import { Navbar } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/Navbar";
 import { ArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ArchiveListItem";
 import { MobArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/MobArchiveListItem";
@@ -17,9 +17,9 @@ const FILTERS = [
   { id: 2, label: "commercial" },
 ];
 
-function getFilterCount(filterId: number) {
-  if (filterId === 0) return DONPROD_PROJECTS.length;
-  return DONPROD_PROJECTS.filter((p) => p.tags.includes(filterId)).length;
+function getFilterCount(filterId: number, projects: Array<{ tags: Array<string | number> }>) {
+  if (filterId === 0) return projects.length;
+  return projects.filter((project) => project.tags.includes(filterId)).length;
 }
 
 // Animation for the list wrapper on filter change
@@ -34,14 +34,16 @@ const listWrapperVariants = {
 
 export default function ArchivePage() {
   const router = useRouter();
+  const { projects, isLoading, error } = usePublicProjects();
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeFilter, setActiveFilter] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [transition, setTransition] = useState<{ slug: string; thumbSrc: string; placeholderSrc: string } | null>(null);
+  const [transition, setTransition] = useState<{ slug: string; thumbSrc: string; placeholderSrc: string; fromRect?: { x: number; y: number; width: number; height: number } } | null>(null);
   const [isHoveringList, setIsHoveringList] = useState(false);
   const [mobOverlayMode, setMobOverlayMode] = useState(false);
   const archiveElementRefs = useRef<(HTMLDivElement | null)[]>([]);
   const mobileElementRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mobScrollRef = useRef<HTMLDivElement | null>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -56,23 +58,26 @@ export default function ArchivePage() {
     if (activeFilter === 0) {
       setActiveIdx(0);
     } else {
-      const firstIdx = DONPROD_PROJECTS.findIndex((p) =>
+      const firstIdx = projects.findIndex((p) =>
         p.tags.includes(activeFilter)
       );
       setActiveIdx(firstIdx >= 0 ? firstIdx : 0);
     }
-  }, [activeFilter]);
+  }, [activeFilter, projects]);
 
-  const handleProjectRedirect = (selected: number) => {
-    const project = DONPROD_PROJECTS[selected];
-    if (isMobile) {
+  const handleProjectRedirect = (selected: number, element?: HTMLElement) => {
+    const project = projects[selected];
+    const thumbSrc = project.thumbDesktop || project.thumbMobile || project.thumbnails?.desktop || "";
+    if (isMobile || !thumbSrc) {
       router.push(`/project/${project.slug}`);
       return;
     }
+    const rect = element?.getBoundingClientRect();
     setTransition({
       slug: project.slug.toLowerCase(),
-      thumbSrc: project.thumbDesktop ?? `https://www.donprod.uk/media/main/${project.slug}/thumbnails/desktop.webp`,
-      placeholderSrc: project.thumbPlaceholder ?? `https://www.donprod.uk/media/main/${project.slug}/thumbnails/placeholder.webp`,
+      thumbSrc,
+      placeholderSrc: project.thumbPlaceholder || thumbSrc,
+      fromRect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : undefined,
     });
   };
 
@@ -104,7 +109,15 @@ export default function ArchivePage() {
     }
   };
 
-  const activeProject = DONPROD_PROJECTS[activeIdx] ?? null;
+  const activeProject = projects[activeIdx] ?? null;
+
+  if (isLoading) return <main className="min-h-screen bg-black" aria-busy="true" />;
+  if (error || projects.length === 0) {
+    return <div className="donprod-page" style={{ position: "relative", height: "100dvh", width: "100vw", display: "grid", placeItems: "center" }}>
+      <Navbar />
+      <p style={{ color: "#868686", fontFamily: '"IBM Plex Mono", monospace', fontSize: "10.8px", letterSpacing: "0.1em", textTransform: "uppercase" }}>{error ? "Archive unavailable" : "No projects yet"}</p>
+    </div>;
+  }
 
   return (
     <>
@@ -191,7 +204,7 @@ export default function ArchivePage() {
                     exit="exit"
                     style={{ width: "100%" }}
                   >
-                    {DONPROD_PROJECTS.map((item, idx) => (
+                    {projects.map((item, idx) => (
                       <ArchiveListItem
                         key={item.slug}
                         item={item}
@@ -241,7 +254,7 @@ export default function ArchivePage() {
               }}
             >
               {FILTERS.map((f, i) => {
-                const count = getFilterCount(f.id);
+                const count = getFilterCount(f.id, projects);
                 const isActive = activeFilter === f.id;
                 return (
                   /*
@@ -268,7 +281,7 @@ export default function ArchivePage() {
                       background: "none",
                       border: "none",
                       cursor: "pointer",
-                      fontFamily: '"IBM Plex Mono", monospace",',
+                      fontFamily: '"IBM Plex Mono", monospace',
                       fontSize: "13px",
                       textTransform: "lowercase",
                       padding: i < FILTERS.length - 1 ? "0 50px 0 0" : "0",
@@ -303,6 +316,7 @@ export default function ArchivePage() {
             <ProjectTransition
               thumbSrc={transition.thumbSrc}
               placeholderSrc={transition.placeholderSrc}
+              fromRect={transition.fromRect}
               onAnimationEnd={() => {
                 router.push(`/project/${transition.slug}`);
                 setTransition(null);
@@ -322,42 +336,44 @@ export default function ArchivePage() {
         >
           <Navbar />
           <div
+            ref={mobScrollRef}
+            id="mob-archv-scroller"
             style={{
               position: "absolute",
               inset: 0,
               overflowY: "auto",
               overflowX: "hidden",
-              paddingTop: "50px",
-              paddingBottom: "80px",
               scrollbarWidth: "none",
             }}
           >
-            {/* Mobile header */}
             <div
               style={{
-                padding: "0 20px 12px",
+                padding: "25% 20px 40px",
+                position: "relative",
                 display: "flex",
-                alignItems: "center",
-                gap: "0.5em",
-                fontFamily: '"IBM Plex Mono", monospace',
+                flexDirection: "column",
                 color: "#f6f6f6",
-                fontSize: "10px",
-                letterSpacing: "0.1em",
-                overflow: "hidden",
               }}
             >
-              <motion.span
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{
-                  y: "0%",
-                  opacity: 1,
-                  transition: { delay: 0.3, duration: 1.25, ease: [0.16, 1, 0.3, 1] },
-                }}
-                style={{ display: "block", fontSize: "clamp(11px, 3.5vw, 14px)" }}
-              >
-                PROJECTS
-              </motion.span>
-              <div style={{ overflow: "hidden" }}>
+              <div style={{ display: "flex", flexDirection: "row", overflow: "hidden", alignItems: "flex-end" }}>
+                <motion.span
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{
+                    y: "0%",
+                    opacity: 1,
+                    transition: { delay: 0.3, duration: 1.25, ease: [0.16, 1, 0.3, 1] },
+                  }}
+                  style={{
+                    display: "inline-block",
+                    fontFamily: '"Heading Now", sans-serif',
+                    fontSize: "24vw",
+                    fontStretch: "condensed",
+                    fontWeight: 800,
+                    lineHeight: 0.8,
+                  }}
+                >
+                  PROJECTS
+                </motion.span>
                 <motion.span
                   initial={{ y: "100%", opacity: 0 }}
                   animate={{
@@ -366,59 +382,56 @@ export default function ArchivePage() {
                     transition: { delay: 0.55, duration: 1.25, ease: [0.16, 1, 0.3, 1] },
                   }}
                   style={{
-                    display: "block",
-                    fontSize: "clamp(11px, 3.5vw, 14px)",
-                    opacity: 0.55,
+                    display: "inline-block",
+                    paddingLeft: 10,
+                    fontFamily: '"Saira Extra Condensed", "IBM Plex Mono", sans-serif',
+                    fontSize: 16,
+                    fontWeight: 900,
+                    letterSpacing: "1px",
+                    lineHeight: 1,
                   }}
                 >
-                  [{DONPROD_PROJECTS.length}]
+                  [{projects.filter((p) => activeFilter === 0 || p.tags.includes(activeFilter)).length}]
                 </motion.span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  marginTop: 5,
+                  fontFamily: '"IBM Plex Mono", monospace',
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  color: "#868686",
+                }}
+              >
+                {FILTERS.map((f) => {
+                  const isActive = activeFilter === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => setActiveFilter(f.id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: isActive ? "#f6f6f6" : "#868686",
+                        fontFamily: '"IBM Plex Mono", monospace',
+                        fontSize: 12,
+                        padding: "0 10px 0 0",
+                        textTransform: "uppercase",
+                        transition: "color .65s ease",
+                      }}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Mobile filter row */}
-            <div
-              style={{
-                padding: "0 20px 16px",
-                display: "flex",
-                gap: "1.5em",
-                fontFamily: '"IBM Plex Mono", monospace',
-                color: "#f6f6f6",
-                fontSize: "10px",
-                letterSpacing: "0.1em",
-              }}
-            >
-              {FILTERS.map((f) => {
-                const isActive = activeFilter === f.id;
-                return (
-                  <button
-                    key={f.id}
-                    onClick={() => setActiveFilter(f.id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: "#f6f6f6",
-                      fontFamily: '"IBM Plex Mono", monospace',
-                      fontSize: "10px",
-                      letterSpacing: "0.1em",
-                      padding: "4px 0",
-                      opacity: isActive ? 1 : 0.4,
-                      transition: "opacity 0.3s ease",
-                      borderBottom: isActive
-                        ? "1px solid #f6f6f6"
-                        : "1px solid transparent",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {f.label}
-                  </button>
-                );
-              })}
-            </div>
-
             {/* Mobile list */}
-            {DONPROD_PROJECTS.map((item, idx) => (
+            {projects.map((item, idx) => (
               <MobArchiveListItem
                 key={item.slug}
                 item={item}
@@ -446,98 +459,106 @@ export default function ArchivePage() {
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: "rgba(0,0,0,0.85)",
-                    padding: "20px",
+                    mixBlendMode: "difference",
+                    pointerEvents: "none",
                   }}
                 >
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{
-                      scale: 1,
-                      opacity: 1,
-                      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                    }}
-                    exit={{ scale: 0.9, opacity: 0, transition: { duration: 0.3 } }}
+                  <div
                     style={{
                       width: "calc(100vw - 40px)",
-                      maxWidth: "460px",
-                      border: "1px solid rgba(246,246,246,0.25)",
-                      overflow: "hidden",
+                      pointerEvents: "auto",
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={activeProject.thumbnails.mobile}
-                      alt={activeProject.title}
+                    <div style={{ position: "relative", overflow: "hidden" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={activeProject.thumbMobile || activeProject.thumbnails.mobile}
+                        alt={activeProject.title}
+                        style={{
+                          width: "100%",
+                          display: "block",
+                          objectFit: "cover",
+                          aspectRatio: "1.9 / 1",
+                        }}
+                      />
+                      {activeProject.mobileVideo ? (
+                        <video
+                          src={activeProject.mobileVideo}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                    <button
+                      onClick={() => handleProjectRedirect(activeIdx)}
                       style={{
-                        width: "100%",
                         display: "block",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div
-                      style={{
-                        padding: "16px 20px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        fontFamily: '"IBM Plex Mono", monospace',
+                        width: "100%",
+                        marginTop: 18,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
                         color: "#f6f6f6",
-                        fontSize: "11px",
-                        letterSpacing: "0.1em",
+                        fontFamily: '"Heading Now", sans-serif',
+                        fontStretch: "condensed",
+                        fontWeight: 800,
+                        fontSize: "10vw",
+                        lineHeight: 0.85,
+                        textAlign: "center",
                       }}
                     >
-                      <button
-                        onClick={() => handleProjectRedirect(activeIdx)}
-                        style={{
-                          background: "none",
-                          border: "1px solid rgba(246,246,246,0.4)",
-                          cursor: "pointer",
-                          color: "#f6f6f6",
-                          fontFamily: '"IBM Plex Mono", monospace',
-                          fontSize: "11px",
-                          letterSpacing: "0.1em",
-                          padding: "8px 16px",
-                        }}
-                      >
-                        VIEW PROJECT
-                      </button>
-                      <button
-                        onClick={() => setMobOverlayMode(false)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          color: "#f6f6f6",
-                          fontFamily: '"IBM Plex Mono", monospace',
-                          fontSize: "11px",
-                          letterSpacing: "0.1em",
-                          opacity: 0.55,
-                          padding: "8px 0",
-                        }}
-                      >
-                        CLOSE
-                      </button>
-                    </div>
-                  </motion.div>
+                      VIEW PROJECT
+                    </button>
+                    <button
+                      onClick={() => setMobOverlayMode(false)}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        marginTop: 8,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "#f6f6f6",
+                        fontFamily: '"IBM Plex Mono", monospace',
+                        fontSize: 12,
+                        letterSpacing: "0.1em",
+                        textAlign: "center",
+                      }}
+                    >
+                      CLOSE
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Mobile back to top */}
             <div
               style={{
-                padding: "20px",
-                textAlign: "center",
-                fontFamily: '"IBM Plex Mono", monospace',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "60px 0",
+                fontFamily: '"Heading Now", sans-serif',
+                fontSize: "10vw",
+                fontStretch: "condensed",
+                fontWeight: 800,
                 color: "#f6f6f6",
-                fontSize: "10px",
-                letterSpacing: "0.15em",
-                opacity: 0.4,
                 cursor: "pointer",
               }}
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              onClick={() => {
+                mobScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               TO THE TOP
             </div>
