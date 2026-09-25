@@ -7,6 +7,53 @@ interface IntroAnimationProps {
   onComplete: () => void;
 }
 
+const INTRO_VIDEO_KEY = "intro-video-url";
+
+function isHttpUrl(value: string) {
+  return /^https?:\/\//i.test(value);
+}
+
+function readCachedIntro() {
+  if (typeof window === "undefined") return "";
+  try {
+    const url = window.localStorage.getItem(INTRO_VIDEO_KEY)?.trim() ?? "";
+    return isHttpUrl(url) ? url : "";
+  } catch {
+    return "";
+  }
+}
+
+function writeCachedIntro(url: string) {
+  try {
+    window.localStorage.setItem(INTRO_VIDEO_KEY, url);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+let introInflight: Promise<string> | null = null;
+
+function loadIntroUrl() {
+  if (introInflight) return introInflight;
+  introInflight = fetch("/api/contact")
+    .then((response) => response.json() as Promise<{ success?: boolean; data?: { introVideoUrl?: string } }>)
+    .then((payload) => {
+      const url = payload.success ? payload.data?.introVideoUrl?.trim() ?? "" : "";
+      if (isHttpUrl(url)) {
+        writeCachedIntro(url);
+        return url;
+      }
+      return "";
+    })
+    .catch(() => "")
+    .finally(() => {
+      introInflight = null;
+    });
+  return introInflight;
+}
+
+if (typeof window !== "undefined") void loadIntroUrl();
+
 const CSS_KEYFRAMES = `
 @keyframes firstCharTransition {
   0%  { opacity: 0; transform: translateX(100%) rotateY(90deg) rotateX(0deg) rotate(0deg); }
@@ -172,7 +219,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   const [animOutContent, setAnimOutContent] = useState(false);
   const [wrapperVisible, setWrapperVisible] = useState(true);
   const [letterIndex, setLetterIndex] = useState(0);
-  const [introSrc, setIntroSrc] = useState("");
+  const [introSrc, setIntroSrc] = useState(readCachedIntro);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const doneRef = useRef(false);
@@ -188,13 +235,9 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/api/contact", { cache: "no-store" })
-      .then((response) => response.json() as Promise<{ success?: boolean; data?: { introVideoUrl?: string } }>)
-      .then((payload) => {
-        const url = payload.success ? payload.data?.introVideoUrl?.trim() : "";
-        if (!cancelled && url && /^https?:\/\//i.test(url)) setIntroSrc(url);
-      })
-      .catch(() => undefined);
+    void loadIntroUrl().then((url) => {
+      if (!cancelled && url) setIntroSrc(url);
+    });
     return () => {
       cancelled = true;
     };
@@ -315,6 +358,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
             autoPlay
             playsInline
             loop
+            preload="auto"
             style={{
               position: "absolute",
               inset: 0,
