@@ -70,6 +70,8 @@ export function ProjectMainVideo({ project }: Props) {
       const video = videoRef.current;
       if (!video) return;
       if (muted) {
+        video.muted = false;
+        video.volume = 1;
         setMuted(false);
         if (video.paused || video.ended) video.play().catch(() => undefined);
         return;
