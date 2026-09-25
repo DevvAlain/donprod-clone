@@ -43,7 +43,7 @@ export async function DELETE(_: Request, { params }: RouteContext) {
     await requireAdmin();
     const { id } = await params;
     await deleteProject(id);
-    return success(null, 204);
+    return success(null);
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") return failure("Unauthorized.", 401);
     if (error instanceof Error && error.message.includes("Record to delete does not exist")) return failure("Project not found.", 404);
