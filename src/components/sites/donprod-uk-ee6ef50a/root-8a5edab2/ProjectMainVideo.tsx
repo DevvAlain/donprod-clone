@@ -18,6 +18,7 @@ function prefersReducedMotion() {
 export function ProjectMainVideo({ project }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const vimeoRef = useRef<HTMLIFrameElement>(null);
+  const youTubeRef = useRef<HTMLIFrameElement>(null);
   const frameRef = useRef<number | null>(null);
   const restoreOverflowRef = useRef("");
   const [muted, setMuted] = useState(true);
@@ -37,7 +38,8 @@ export function ProjectMainVideo({ project }: Props) {
     ? getVimeoEmbedUrl(project.videoUrl)
     : null;
   const isNativeVideo = project.videoType === "CLOUDINARY" && Boolean(project.videoUrl);
-  const isInteractiveVideo = isNativeVideo || Boolean(vimeoEmbedUrl);
+  const isYouTubeVideo = Boolean(youTubeEmbedUrl);
+  const isInteractiveVideo = isNativeVideo || Boolean(vimeoEmbedUrl) || isYouTubeVideo;
 
   const stopFrame = useCallback(() => {
     if (frameRef.current !== null) {
@@ -62,6 +64,13 @@ export function ProjectMainVideo({ project }: Props) {
     vimeoRef.current?.contentWindow?.postMessage(
       JSON.stringify({ method, ...(value === undefined ? {} : { value }) }),
       "https://player.vimeo.com",
+    );
+  }, []);
+
+  const sendYouTube = useCallback((func: string, args: unknown[] = []) => {
+    youTubeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func, args }),
+      "*",
     );
   }, []);
 
@@ -94,8 +103,21 @@ export function ProjectMainVideo({ project }: Props) {
         setIsWaiting(true);
         sendVimeo("play");
       }
+      return;
     }
-  }, [isNativeVideo, vimeoEmbedUrl, isPlaying, muted, sendVimeo]);
+
+    if (isYouTubeVideo) {
+      if (muted) {
+        setMuted(false);
+        sendYouTube("unMute");
+        sendYouTube("setVolume", [100]);
+        if (!isPlaying) sendYouTube("playVideo");
+        return;
+      }
+      if (isPlaying) sendYouTube("pauseVideo");
+      else sendYouTube("playVideo");
+    }
+  }, [isNativeVideo, vimeoEmbedUrl, isYouTubeVideo, isPlaying, muted, sendVimeo, sendYouTube]);
 
   const toggleFullscreen = useCallback(() => {
     setIsFullscreen((value) => !value);
@@ -198,9 +220,44 @@ export function ProjectMainVideo({ project }: Props) {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (video) video.muted = muted;
+    if (video) {
+      video.muted = muted;
+      if (!muted) video.volume = 1;
+    }
     if (vimeoEmbedUrl) sendVimeo("setVolume", muted ? 0 : 1);
-  }, [muted, vimeoEmbedUrl, sendVimeo]);
+    if (isYouTubeVideo) {
+      sendYouTube(muted ? "mute" : "unMute");
+      sendYouTube("setVolume", [muted ? 0 : 100]);
+    }
+  }, [muted, vimeoEmbedUrl, isYouTubeVideo, sendVimeo, sendYouTube]);
+
+  useEffect(() => {
+    if (!isYouTubeVideo) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://www.youtube-nocookie.com" && event.origin !== "https://www.youtube.com") return;
+      let data: { event?: string; info?: number };
+      try {
+        data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      } catch {
+        return;
+      }
+      if (data.event === "onStateChange") {
+        if (data.info === 1) {
+          setIsPlaying(true);
+          setIsWaiting(false);
+        } else if (data.info === 2) {
+          setIsPlaying(false);
+          setIsWaiting(false);
+        } else if (data.info === 3) setIsWaiting(true);
+        else if (data.info === 0) setProgress(1);
+      }
+      if (data.event === "onReady") {
+        setIsPlaying(true);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [isYouTubeVideo]);
 
   useEffect(() => {
     if (!isFullscreen) {
@@ -272,8 +329,9 @@ export function ProjectMainVideo({ project }: Props) {
         <div className="project-video" style={{ position: "absolute", inset: 0, zIndex: 2 }}>
           {youTubeEmbedUrl && (
             <iframe
-              src={`${youTubeEmbedUrl}&mute=${muted ? 1 : 0}&autoplay=1`}
-              style={{ width: "100%", height: "100%", border: "none" }}
+              ref={youTubeRef}
+              src={youTubeEmbedUrl}
+              style={{ width: "100%", height: "100%", border: "none", pointerEvents: isYouTubeVideo && muted ? "none" : "auto" }}
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               referrerPolicy="strict-origin-when-cross-origin"
               title={`${project.title} - ${project.artist ?? ""}`}

@@ -23,7 +23,7 @@ export function normalizeYouTubeUrl(value: string) {
 
 export function getYouTubeEmbedUrl(value: string) {
   const id = getYouTubeVideoId(value);
-  return id ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&loop=1&mute=1&controls=0&playlist=${id}` : null;
+  return id ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&loop=1&mute=1&controls=0&playlist=${id}&enablejsapi=1&playsinline=1` : null;
 }
 
 export function isCloudinaryDeliveryUrl(value: string) {
