@@ -219,7 +219,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   const [animOutContent, setAnimOutContent] = useState(false);
   const [wrapperVisible, setWrapperVisible] = useState(true);
   const [letterIndex, setLetterIndex] = useState(0);
-  const [introSrc, setIntroSrc] = useState(readCachedIntro);
+  const [introSrc, setIntroSrc] = useState("");
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const doneRef = useRef(false);
@@ -234,6 +234,10 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
   };
 
   useEffect(() => {
+    // Read cache in an effect (not in useState initializer) so the first
+    // client render matches the server HTML and avoids a hydration mismatch.
+    const cached = readCachedIntro();
+    if (cached) setIntroSrc(cached);
     let cancelled = false;
     void loadIntroUrl().then((url) => {
       if (!cancelled && url) setIntroSrc(url);
@@ -335,8 +339,11 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
         />
       </motion.svg>
 
-      {/* Outer clipper — fades out at the end */}
+      {/* Outer clipper — fades out at the end.
+          Decorative only: hidden from assistive tech so the page content
+          behind it stays exposed while the intro plays. */}
       <div
+        aria-hidden="true"
         style={{
           position: "fixed",
           top: 0,

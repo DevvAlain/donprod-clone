@@ -37,6 +37,8 @@ export function HeroSection() {
           className="home-logo-upper"
           src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-upper.png"
           alt="I8 STUDIO"
+          fetchPriority="high"
+          decoding="async"
           style={{
             height: "100%",
             width: "auto",

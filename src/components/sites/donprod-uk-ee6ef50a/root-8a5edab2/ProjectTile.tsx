@@ -132,6 +132,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
               loop
               muted
               playsInline
+              poster={project.thumbMobile || project.thumbPlaceholder}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -282,6 +283,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                   loop
                   muted
                   playsInline
+                  poster={project.thumbMobile}
                   style={{
                     position: "absolute",
                     top: 0,

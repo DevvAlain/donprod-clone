@@ -15,8 +15,11 @@ import { HomeArchiveView } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5
 
 const INTRO_STORAGE_PREFIX = "intro-seen-";
 
+// Stable per-tab key: the intro plays fully on first view, then is skipped
+// for repeat views in the same tab session (was keyed by timeOrigin, which
+// is unique per load, so the intro replayed on every navigation).
 function getIntroStorageKey() {
-  return `${INTRO_STORAGE_PREFIX}${window.performance.timeOrigin}`;
+  return `${INTRO_STORAGE_PREFIX}tab`;
 }
 
 function EmptyProjectsState({ isMobile }: { isMobile: boolean }) {
@@ -156,6 +159,8 @@ export default function DonprodHomePage() {
           >
             {/* Fixed nav */}
             <Navbar />
+            <h1 className="sr-only">I8 Studio — Director Showcase, TVC & Commercial Production</h1>
+            <h2 className="sr-only">Selected work</h2>
 
             {isLoading ? (
               <main className="min-h-screen bg-black" aria-busy="true" />
@@ -219,6 +224,8 @@ export default function DonprodHomePage() {
         >
           {/* Fixed nav — z:101 */}
           <Navbar />
+          <h1 className="sr-only">I8 Studio — Director Showcase, TVC & Commercial Production</h1>
+          <h2 className="sr-only">Selected work</h2>
 
           {isLoading ? (
             <main className="min-h-screen bg-black" aria-busy="true" />

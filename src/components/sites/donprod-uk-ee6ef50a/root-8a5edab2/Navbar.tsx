@@ -26,8 +26,26 @@ function NavItem({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Navbar() {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const { navigate } = useRouteTransition();
+  return (
+    <a
+      href={href}
+      onClick={(event) => {
+        // Let modifier/middle clicks use native browser behavior (new tab).
+        // Plain left clicks keep the route-transition animation.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        navigate(href);
+      }}
+      style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102 }}
+    >
+      <NavItem>{children}</NavItem>
+    </a>
+  );
+}
+
+export function Navbar() {
   return (
     <>
       <style>{`
@@ -107,7 +125,8 @@ export function Navbar() {
         }}
       >
         {/* Upper bar */}
-        <div
+        <nav
+          aria-label="Primary"
           className="dp-nav-upper"
           style={{
             display: "flex",
@@ -132,13 +151,7 @@ export function Navbar() {
               position: "relative",
             }}
           >
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
-            >
-              <NavItem>I8 STUDIO</NavItem>
-            </button>
+            <NavLink href="/">I8 STUDIO</NavLink>
           </div>
 
           {/* Dead center column */}
@@ -157,29 +170,11 @@ export function Navbar() {
               position: "relative",
             }}
           >
-            <button
-              type="button"
-              onClick={() => navigate("/contact")}
-              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
-            >
-              <NavItem>CONTACT</NavItem>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/archive")}
-              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
-            >
-              <NavItem>ARCHIVE</NavItem>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/tvc")}
-              style={{ color: "inherit", textDecoration: "none", pointerEvents: "auto", position: "relative", zIndex: 102, border: 0, padding: 0, background: "transparent", font: "inherit" }}
-            >
-              <NavItem>TVC</NavItem>
-            </button>
+            <NavLink href="/contact">CONTACT</NavLink>
+            <NavLink href="/archive">ARCHIVE</NavLink>
+            <NavLink href="/tvc">TVC</NavLink>
           </div>
-        </div>
+        </nav>
 
         {/* Lower bar */}
         <div

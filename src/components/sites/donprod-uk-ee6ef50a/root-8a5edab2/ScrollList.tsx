@@ -201,7 +201,7 @@ export function ScrollList({
             <img
               className="home-upper-logo"
               src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-upper.png"
-              alt="DON"
+              alt="I8 STUDIO"
               style={{ display: "block", width: "90%", maxWidth: "90%", height: "auto", margin: "0 auto" }}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}

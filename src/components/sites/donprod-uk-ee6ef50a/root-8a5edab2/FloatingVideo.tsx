@@ -64,6 +64,7 @@ export function FloatingVideo({
             loop
             muted
             playsInline
+            poster={desktopThumb}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           >
             <source src={desktopVideo} type="video/mp4" />
@@ -93,6 +94,7 @@ export function FloatingVideo({
           loop
           muted
           playsInline
+          poster={desktopThumb}
           style={{
             position: "absolute",
             inset: 0,
