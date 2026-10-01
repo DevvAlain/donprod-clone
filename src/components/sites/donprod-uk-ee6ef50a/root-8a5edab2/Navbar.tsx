@@ -157,7 +157,7 @@ export function Navbar() {
           {/* Dead center column */}
           <div style={{ display: "block", flex: "1 1 120px", minWidth: 40, height: 0 }} />
 
-          {/* Right wrap — CONTACT + ARCHIVE + TVC */}
+          {/* Right wrap — CONTACT + ARCHIVE + COMMERCIAL */}
           <div
             className="dp-nav-right"
             style={{
@@ -172,7 +172,7 @@ export function Navbar() {
           >
             <NavLink href="/contact">CONTACT</NavLink>
             <NavLink href="/archive">ARCHIVE</NavLink>
-            <NavLink href="/tvc">TVC</NavLink>
+            <NavLink href="/tvc">COMMERCIAL</NavLink>
           </div>
         </nav>
 

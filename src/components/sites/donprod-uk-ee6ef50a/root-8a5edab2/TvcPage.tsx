@@ -51,7 +51,7 @@ export function TvcPage() {
           <h1 className={styles.title}>DẤU MỐC</h1>
         </div>
 
-        <div className={styles.tabs} role="tablist" aria-label="TVC tabs">
+        <div className={styles.tabs} role="tablist" aria-label="Commercial tabs">
           <button
             type="button"
             role="tab"
