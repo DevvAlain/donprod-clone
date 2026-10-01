@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Required for the Docker standalone image (Dockerfile target "runner").
+  output: "standalone",
   poweredByHeader: false,
   async headers() {
     return [

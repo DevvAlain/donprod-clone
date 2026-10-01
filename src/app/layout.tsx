@@ -10,7 +10,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://i8s.netlify.app"),
+  metadataBase: new URL("https://i8.com.vn"),
   title: "I8 Studio — Director Showcase, TVC & Commercial Production",
   description:
     "I8 Studio is a director-led showcase for TVC & commercial work (2023–2026). Browse the archive, watch TVCs and contact for production.",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
 };
 
-const SITE_URL = "https://i8s.netlify.app";
+const SITE_URL = "https://i8.com.vn";
 
 // Only facts verifiable on the site itself: name, URL, logo, tagline.
 // Omitted deliberately: sameAs (linked handles say "donprod", unverified for

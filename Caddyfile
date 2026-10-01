@@ -1,0 +1,5 @@
+# Reverse proxy for the VPS. Caddy provisions free Let's Encrypt TLS
+# automatically (requires :80 + :443 reachable — DNS already points here).
+i8.com.vn, www.i8.com.vn {
+	reverse_proxy app:3000
+}

@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://i8s.netlify.app/sitemap.xml",
+    sitemap: "https://i8.com.vn/sitemap.xml",
   };
 }

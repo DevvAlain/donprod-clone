@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://i8s.netlify.app";
+const SITE_URL = "https://i8.com.vn";
 
 const STATIC_ROUTES = ["/", "/archive", "/tvc", "/contact"];
 
