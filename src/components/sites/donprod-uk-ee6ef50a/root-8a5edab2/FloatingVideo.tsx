@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { InlineVideo } from "./InlineVideo";
 
 interface FloatingVideoProps {
   desktopThumb: string;
@@ -59,7 +60,7 @@ export function FloatingVideo({
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
         {desktopVideo ? (
-          <video
+          <InlineVideo
             autoPlay
             loop
             muted
@@ -68,7 +69,7 @@ export function FloatingVideo({
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           >
             <source src={desktopVideo} type="video/mp4" />
-          </video>
+          </InlineVideo>
         ) : null}
       </motion.div>
     );
@@ -88,7 +89,7 @@ export function FloatingVideo({
       }}
     >
       {desktopVideo && (
-        <video
+        <InlineVideo
           ref={videoRef}
           autoPlay
           loop
@@ -105,7 +106,7 @@ export function FloatingVideo({
           }}
         >
           <source src={desktopVideo} type="video/mp4" />
-        </video>
+        </InlineVideo>
       )}
       {/* fallback image shown behind video */}
       {/* eslint-disable-next-line @next/next/no-img-element */}

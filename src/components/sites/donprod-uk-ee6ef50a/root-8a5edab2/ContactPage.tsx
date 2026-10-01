@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navbar } from "./Navbar";
+import { InlineVideo } from "./InlineVideo";
 import styles from "./ContactPage.module.css";
 
 interface ContactSettings {
@@ -166,7 +167,7 @@ function ShowreelCursor({ url, disabled, onOpen }: { url: string; disabled: bool
   if (!url || disabled) return null;
   return <div className={`${styles.cursorShowreelGroup} ${active ? styles.cursorShowreelActive : ""}`} aria-hidden="true">
     {Array.from({ length: 5 }, (_, index) => <div key={index} ref={(element) => { previewRefs.current[index] = element; }} className={styles.cursorShowreel}>
-      {vimeoId ? <iframe title="Showreel preview" src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&dnt=1`} allow="autoplay; fullscreen" /> : <video autoPlay loop muted playsInline src={url} />}
+      {vimeoId ? <iframe title="Showreel preview" src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&dnt=1`} allow="autoplay; fullscreen" /> : <InlineVideo autoPlay loop muted playsInline src={url} />}
     </div>)}
   </div>;
 }

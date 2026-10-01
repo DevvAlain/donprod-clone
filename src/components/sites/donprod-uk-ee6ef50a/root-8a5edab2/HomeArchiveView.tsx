@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { DonprodProject } from "@/types/donprod";
+import { InlineVideo } from "./InlineVideo";
 
 interface HomeArchiveViewProps {
   projects: DonprodProject[];
@@ -240,7 +241,7 @@ export function HomeArchiveView({
                 />
               ) : null}
               {isHovered && videoSrc && (
-                <video
+                <InlineVideo
                   autoPlay
                   loop
                   muted
@@ -255,7 +256,7 @@ export function HomeArchiveView({
                   }}
                 >
                   <source src={videoSrc} type="video/mp4" />
-                </video>
+                </InlineVideo>
               )}
               {isHovered && (
                 <>

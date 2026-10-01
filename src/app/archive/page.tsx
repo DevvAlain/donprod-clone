@@ -8,6 +8,7 @@ import { Navbar } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/Nav
 import { ArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ArchiveListItem";
 import { MobArchiveListItem } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/MobArchiveListItem";
 import { ArchiveBackground } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/ArchiveBackground";
+import { InlineVideo } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/InlineVideo";
 import { useRouteTransition } from "@/components/sites/donprod-uk-ee6ef50a/root-8a5edab2/RouteTransition";
 
 // Filters: 0 = all, 1 = music, 2 = commercial
@@ -466,7 +467,7 @@ export default function ArchivePage() {
                         }}
                       />
                       {activeProject.mobileVideo ? (
-                        <video
+                        <InlineVideo
                           src={activeProject.mobileVideo}
                           autoPlay
                           muted

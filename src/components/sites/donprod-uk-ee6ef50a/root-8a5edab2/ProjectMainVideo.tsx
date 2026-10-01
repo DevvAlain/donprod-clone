@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DonprodProject } from "@/types/donprod";
 import { BracketsWrapper } from "./BracketsWrapper";
+import { InlineVideo } from "./InlineVideo";
 import { getYouTubeEmbedUrl, getVimeoEmbedUrl } from "@/lib/youtube";
 
 interface Props {
@@ -348,7 +349,7 @@ export function ProjectMainVideo({ project }: Props) {
             />
           )}
           {isNativeVideo && (
-            <video
+            <InlineVideo
               ref={videoRef}
               src={project.videoUrl ?? undefined}
               autoPlay

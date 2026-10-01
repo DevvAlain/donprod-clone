@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { DonprodProject } from "@/types/donprod";
+import { InlineVideo } from "./InlineVideo";
 
 interface ArchiveBackgroundProps {
   project: DonprodProject | null;
@@ -94,7 +95,7 @@ export function ArchiveBackground({ project, activeIdx, isVisible }: ArchiveBack
               }}
             >
               {previewSrc ? (
-                <video
+                <InlineVideo
                   autoPlay
                   loop
                   muted
@@ -109,7 +110,7 @@ export function ArchiveBackground({ project, activeIdx, isVisible }: ArchiveBack
                   }}
                 >
                   <source src={previewSrc} type="video/mp4" />
-                </video>
+                </InlineVideo>
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img

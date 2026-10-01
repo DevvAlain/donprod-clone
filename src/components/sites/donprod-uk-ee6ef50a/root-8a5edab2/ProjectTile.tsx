@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { InlineVideo } from "./InlineVideo";
 
 interface ProjectTileProps {
   project: {
@@ -126,7 +127,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
           {project.mobileVideo ? (
-            <video
+            <InlineVideo
               ref={videoRef}
               autoPlay
               loop
@@ -144,7 +145,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
               }}
             >
               <source src={project.mobileVideo} type="video/mp4" />
-            </video>
+            </InlineVideo>
           ) : null}
         </div>
         <div
@@ -276,7 +277,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                   </div>
                 </div>
 
-                {project.mobileVideo ? <video
+                {project.mobileVideo ? <InlineVideo
                   ref={videoRef}
                   className="grid-item__hover"
                   autoPlay
@@ -296,7 +297,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                   }}
                 >
                   <source src={project.mobileVideo} type="video/mp4" />
-                </video> : null}
+                </InlineVideo> : null}
               </div>
             </div>
 

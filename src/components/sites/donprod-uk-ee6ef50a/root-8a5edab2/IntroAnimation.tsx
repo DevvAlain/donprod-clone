@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { InlineVideo } from "./InlineVideo";
 
 interface IntroAnimationProps {
   onComplete: () => void;
@@ -358,7 +359,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
         }}
       >
         {introSrc ? (
-          <video
+          <InlineVideo
             ref={videoRef}
             src={introSrc}
             muted
