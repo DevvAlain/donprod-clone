@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import Lenis from "lenis";
 import type { DonprodProject } from "@/types/donprod";
 import { ProjectTile } from "./ProjectTile";
 import { HeroSection } from "./HeroSection";
@@ -15,7 +14,8 @@ interface ScrollListProps {
   onFirstTileReady?: (rect: DOMRect) => void;
 }
 
-const SPACER_COUNT = 2;
+const COPIES = 3; // prev / current / next — the loop wraps by one set width
+const MIDDLE_COPY = 1;
 
 export function ScrollList({
   projects,
@@ -91,50 +91,166 @@ export function ScrollList({
     };
   }, [handleIntersection, projects.length, isMobile]);
 
-  // Lenis scroll system for desktop
+  // Horizontal infinite-loop engine for desktop: vertical wheel drives a
+  // smoothed horizontal track; the project set is rendered 3x and the scroll
+  // position wraps by one set width so the loop never ends.
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const lastWheelRef = useRef(0);
+  const geomRef = useRef({ tileW: 0, padL: 0, setW: 0, vw: 0 });
+  const activeRef = useRef(0);
+  // Separate ref array for the desktop loop tiles (mobile keeps tileRefs)
+  const loopRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Global index (across all 3 copies) of the tile currently centered in
+  // the viewport. Videos play only on the centered tile — whichever copy
+  // it belongs to — so autoplay survives full wrap-arounds of the loop.
+  const [centeredGlobal, setCenteredGlobal] = useState(0);
+  const centeredRef = useRef(0);
+  const [edgePad, setEdgePad] = useState(0);
+
+  const measureLoop = useCallback(() => {
+    const track = scrollContainerRef.current;
+    const count = projects.length;
+    if (!track || count === 0) return;
+    const probe = loopRefs.current[MIDDLE_COPY * count];
+    const tileW = probe?.offsetWidth || track.clientWidth * 0.25;
+    const vw = track.clientWidth;
+    const padL = Math.max((vw - tileW) / 2, 0);
+    geomRef.current = { tileW, padL, setW: count * tileW, vw };
+    setEdgePad(padL);
+  }, [projects.length]);
+
+  // Initial measure + centering; re-measure when the project set changes
+  useEffect(() => {
+    if (isMobile || projects.length === 0) return;
+    loopRefs.current = loopRefs.current.slice(0, projects.length * COPIES);
+    measureLoop();
+    const m = geomRef.current;
+    // Center the first tile of the middle copy (tile center, not tile edge)
+    const startX = m.padL + m.setW + m.tileW / 2 - m.vw / 2;
+    targetRef.current = startX;
+    currentRef.current = startX;
+    activeRef.current = 0;
+    onActiveChange(0);
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = startX;
+    if (onFirstTileReady) {
+      const firstTile = loopRefs.current[MIDDLE_COPY * projects.length];
+      if (firstTile) onFirstTileReady(firstTile.getBoundingClientRect());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, projects.length, measureLoop]);
+
+  // Re-measure on viewport resize, keeping the active tile centered
   useEffect(() => {
     if (isMobile) return;
-    if (!scrollContainerRef.current || !innerContentRef.current) return;
-
-    const lenis = new Lenis({
-      wrapper: scrollContainerRef.current,
-      content: innerContentRef.current,
-      lerp: 0.2,
-      wheelMultiplier: 0.5,
-      touchMultiplier: 2,
-      syncTouch: false,
-    });
-
-    let snapTimeout: ReturnType<typeof setTimeout>;
-
-    lenis.on("scroll", ({ scroll }: { scroll: number; velocity: number }) => {
-      const tileH = window.innerHeight * 0.2; // 20dvh
-      const idx = Math.round(scroll / tileH);
-      const clamped = Math.max(0, Math.min(projects.length - 1, idx));
-      onActiveChange(clamped);
-
-      clearTimeout(snapTimeout);
-      snapTimeout = setTimeout(() => {
-        lenis.scrollTo(clamped * tileH, {
-          duration: 0.5,
-          easing: (t: number) => 1 - Math.pow(1 - t, 3),
-        });
-      }, 150);
-    });
-
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      clearTimeout(snapTimeout);
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
+    const onResize = () => {
+      measureLoop();
+      const g = geomRef.current;
+      if (!g.tileW) return;
+      const centered = g.padL + g.setW + (activeRef.current + 0.5) * g.tileW - g.vw / 2;
+      targetRef.current = centered;
+      currentRef.current = centered;
+      if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = centered;
     };
-  }, [isMobile, projects.length, onActiveChange]);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isMobile, measureLoop]);
+
+  // Native wheel listener (passive: false so vertical scroll can drive horizontal)
+  useEffect(() => {
+    if (isMobile) return;
+    const track = scrollContainerRef.current;
+    if (!track) return;
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      targetRef.current += event.deltaY + event.deltaX;
+      lastWheelRef.current = performance.now();
+    };
+    track.addEventListener("wheel", onWheel, { passive: false });
+    return () => track.removeEventListener("wheel", onWheel);
+  }, [isMobile, projects.length]);
+
+  // Smoothing + wrap + snap + coverflow loop
+  useEffect(() => {
+    if (isMobile || projects.length === 0) return;
+    const count = projects.length;
+    let rafId: number;
+    const tick = () => {
+      const track = scrollContainerRef.current;
+      const g = geomRef.current;
+      if (!track || !g.tileW || !g.setW) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+      const now = performance.now();
+      let target = targetRef.current;
+      let current = currentRef.current;
+
+      // Seamless wrap: keep the viewport inside the middle copy's neighborhood
+      const lo = g.padL + g.setW * 0.5;
+      const hi = g.padL + g.setW * 2.5;
+      if (current < lo || current >= hi || target < lo - g.setW || target >= hi + g.setW) {
+        const shift = Math.round((g.padL + g.setW * 1.5 - current) / g.setW) * g.setW;
+        if (shift !== 0) {
+          current += shift;
+          target += shift;
+        }
+      }
+
+      // Snap to nearest tile center when the wheel goes idle
+      if (now - lastWheelRef.current > 160) {
+        const rel = current + g.vw / 2 - g.padL;
+        const snap = g.padL + (Math.round(rel / g.tileW - 0.5) + 0.5) * g.tileW - g.vw / 2;
+        target += (snap - target) * 0.18;
+      }
+
+      current += (target - current) * 0.12;
+      if (Math.abs(target - current) < 0.1) current = target;
+      targetRef.current = target;
+      currentRef.current = current;
+      track.scrollLeft = current;
+
+      // Active tile = closest to viewport center (wrapped to project index)
+      const relC = current + g.vw / 2 - g.padL;
+      const idx = ((Math.round(relC / g.tileW - 0.5) % count) + count) % count;
+      if (idx !== activeRef.current) {
+        activeRef.current = idx;
+        onActiveChange(idx);
+      }
+      // Centered copy-tile drives video playback (any copy, so autoplay
+      // keeps working after wrap-arounds)
+      const total = count * COPIES;
+      const gNorm = ((Math.round(relC / g.tileW - 0.5) % total) + total) % total;
+      if (gNorm !== centeredRef.current) {
+        centeredRef.current = gNorm;
+        setCenteredGlobal(gNorm);
+      }
+
+      // Coverflow 3D: rotate/fade tiles by distance from center
+      const center = current + g.vw / 2;
+      const refs = loopRefs.current;
+      for (let n = 0; n < refs.length; n++) {
+        const el = refs[n];
+        if (!el) continue;
+        const tileCenter = g.padL + (n + 0.5) * g.tileW;
+        const offset = (tileCenter - center) / g.vw; // -0.5..0.5+
+        const abs = Math.min(Math.abs(offset), 0.9);
+        const i = n % count;
+        const filtered = filter !== null && !projects[i].tags.includes(filter);
+        const baseOpacity = filtered ? 0 : 1;
+        // Only 3 frames visible: center + immediate neighbors fade in,
+        // anything further out is fully hidden (still occupies layout space).
+        const vis = abs >= 0.38 ? 0 : 1 - abs * 1.1;
+        el.style.opacity = String(baseOpacity * vis);
+        el.style.transform = `perspective(1200px) rotateY(${(offset * -55).toFixed(2)}deg) translateZ(${(-abs * 380).toFixed(1)}px)`;
+        el.style.zIndex = abs < 0.15 ? "3" : "2";
+      }
+
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isMobile, projects.length, filter, projects, onActiveChange]);
 
   const tileList = projects.map((project, i) => {
     const isFiltered = filter !== null && !project.tags.includes(filter);
@@ -179,6 +295,55 @@ export function ScrollList({
       </div>
     );
   });
+
+  // Desktop loop tiles: the project set rendered 3x (prev/current/next).
+  // Only the middle copy drives the active state; side copies stay dimmed.
+  const tileLoop = Array.from({ length: COPIES }).flatMap((_, copy) =>
+    projects.map((project, i) => {
+      const isFiltered = filter !== null && !project.tags.includes(filter);
+      const globalIndex = copy * projects.length + i;
+
+      const tileProject = {
+        slug: project.slug,
+        title: project.title,
+        artist: project.artist,
+        thumbMobile: project.thumbMobile,
+        thumbPlaceholder: project.thumbPlaceholder,
+        mobileVideo: project.mobileVideo || undefined,
+      };
+
+      return (
+        <div
+          key={`${copy}-${project.slug}`}
+          ref={(el) => {
+            loopRefs.current[globalIndex] = el;
+          }}
+          style={{
+            opacity: isFiltered ? 0 : 1,
+            pointerEvents: isFiltered ? "none" : "auto",
+            flexShrink: 0,
+            // 3 frames per viewport: center + one neighbor each side
+            width: "clamp(280px, 30vw, 480px)",
+          }}
+        >
+          <ProjectTile
+            project={tileProject}
+            isActive={globalIndex === centeredGlobal}
+            isMobile={false}
+            index={i + 1}
+            onActivate={() => onActiveChange(i)}
+            onTileClick={onTileClick ? (element) => onTileClick(projects[i], element) : undefined}
+            isHoveredSelf={hoveredIndex === i}
+            isHoveredByOther={hoveredIndex !== null && hoveredIndex !== i}
+            onTileMouseEnter={() => {
+              if (i !== activeIndex) setHoveredIndex(i);
+            }}
+            onTileMouseLeave={() => setHoveredIndex(null)}
+          />
+        </div>
+      );
+    }),
+  );
 
   if (isMobile) {
     const scrollTop = () => {
@@ -287,29 +452,27 @@ export function ScrollList({
         }}
       >
         {/*
-         * vertical_project_wrapper — full width so the hero inside can be 100vw.
-         * The hero is position:absolute within this, scrolling away as you scroll.
-         * Tiles are in a centered column inside.
+         * horizontal_project_wrapper — full height; the hero stays absolute
+         * at the top while tiles run in a centered horizontal row.
          */}
         <div
           ref={innerContentRef}
-          className="vertical_project_wrapper"
+          className="horizontal_project_wrapper"
           style={{
             position: "relative",
-            width: "100%",
-            height: "fit-content",
+            height: "100%",
+            width: "fit-content",
           }}
         >
           {/*
-           * home_hero__wrapper — matches original inline style exactly:
-           * position:absolute; top:60px; width:100vw; height:calc(-70px + 40vh);
-           * left:50%; transform:translateX(-50%); pointer-events:none; z-index:1
-           * Scrolls away with content as user scrolls down.
+           * home_hero__wrapper — FIXED to the viewport so it never drifts
+           * with the horizontal loop; only the project tiles move.
+           * Same size/position as before, just viewport-anchored.
            */}
           <div
             className="home_hero__wrapper"
             style={{
-              position: "absolute",
+              position: "fixed",
               top: 60,
               left: "50%",
               transform: "translateX(-50%)",
@@ -322,34 +485,22 @@ export function ScrollList({
             <HeroSection />
           </div>
 
-          {/* Centered tile column */}
+          {/* Centered tile row — edge spacers let the first/last tile reach center */}
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               alignItems: "center",
-              width: "100%",
+              height: "100%",
               position: "relative",
               zIndex: 2,
             }}
           >
-            {/* Top spacers — 2×20dvh = 40dvh, placing first tile at center of 5-tile viewport */}
-            {Array.from({ length: SPACER_COUNT }).map((_, i) => (
-              <div
-                key={`spacer-top-${i}`}
-                style={{ height: "20dvh", width: "clamp(200px, 25.14vw, 362px)", flexShrink: 0 }}
-              />
-            ))}
+            <div style={{ width: edgePad, flexShrink: 0 }} />
 
-            {tileList}
+            {tileLoop}
 
-            {/* Bottom spacers — so last tile can reach center */}
-            {Array.from({ length: SPACER_COUNT }).map((_, i) => (
-              <div
-                key={`spacer-bottom-${i}`}
-                style={{ height: "20dvh", width: "clamp(200px, 25.14vw, 362px)", flexShrink: 0 }}
-              />
-            ))}
+            <div style={{ width: edgePad, flexShrink: 0 }} />
           </div>
         </div>
       </div>

@@ -124,6 +124,14 @@ export default function DonprodHomePage() {
   const introMedia = firstProject?.gifStyling.backgroundImage || firstProject?.thumbDesktop;
 
   useEffect(() => {
+    // A full reload always replays the intro; only in-app revisits within
+    // the same tab session skip it.
+    try {
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      if (nav?.type === "reload") sessionStorage.removeItem(getIntroStorageKey());
+    } catch {
+      /* storage unavailable — play the intro */
+    }
     if (sessionStorage.getItem(getIntroStorageKey())) {
       setIntroComplete(true);
     }

@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// React dev mode needs eval() for debugging callstacks; production never
+// uses it, so 'unsafe-eval' is dev-only. (Without it, `next dev` logs:
+// "eval() is not supported in this environment...".)
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:"
+  : "script-src 'self' 'unsafe-inline' https:";
+
 const nextConfig: NextConfig = {
   // Required for the Docker standalone image (Dockerfile target "runner").
   output: "standalone",
@@ -32,7 +41,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https:",
+              scriptSrc,
               "style-src 'self' 'unsafe-inline' https:",
               "img-src 'self' data: blob: https:",
               "media-src 'self' blob: https:",
