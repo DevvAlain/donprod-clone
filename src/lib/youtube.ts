@@ -35,6 +35,23 @@ export function isCloudinaryDeliveryUrl(value: string) {
   }
 }
 
+// Files uploaded to this server live under /uploads/... (see lib/local-upload),
+// stored either relative or as absolute same-origin URLs.
+export function isLocalUploadUrl(value: string) {
+  if (value.startsWith("/uploads/images/") || value.startsWith("/uploads/videos/")) return true;
+  try {
+    const url = new URL(value);
+    return url.pathname.startsWith("/uploads/images/") || url.pathname.startsWith("/uploads/videos/");
+  } catch {
+    return false;
+  }
+}
+
+// "Hosted mp4" videos: legacy Cloudinary delivery URLs or new local uploads.
+export function isHostedVideoUrl(value: string) {
+  return isCloudinaryDeliveryUrl(value) || isLocalUploadUrl(value);
+}
+
 const VIMEO_ID = /^\d{7,12}$/;
 
 export function getVimeoVideoId(value: string) {

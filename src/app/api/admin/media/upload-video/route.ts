@@ -1,6 +1,6 @@
 import { failure, success } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { publicOrigin, saveUploadedFile } from "@/lib/local-upload";
 
 const allowedTypes = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
@@ -23,12 +23,14 @@ export async function POST(request: Request) {
     if (!allowedTypes.has(file.type)) return failure("Unsupported video file type.", 422);
     if (file.size === 0) return failure("Video file is empty.", 422);
     if (file.size > getMaxBytes()) return failure("Video file exceeds the configured size limit.", 413);
-    const asset = await uploadToCloudinary(file, "video");
-    return success({ url: asset.secure_url, publicId: asset.public_id, resourceType: "video" }, 201);
+    const asset = await saveUploadedFile(file, "video");
+    // Absolute URL: keeps stored video URLs uniformly absolute (same as Cloudinary).
+    const url = new URL(asset.url, publicOrigin(request)).toString();
+    return success({ url, publicId: asset.publicId, resourceType: "video" }, 201);
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") return failure("Unauthorized.", 401);
-    if (error instanceof Error && error.message === "CLOUDINARY_NOT_CONFIGURED") return failure("Cloudinary is not configured.", 503);
-    console.error("Cloudinary video upload failed", error);
+    if (error instanceof Error && error.message === "UNSUPPORTED_FILE_TYPE") return failure("Unsupported video file type.", 422);
+    console.error("Local video upload failed", error);
     return failure("Video upload failed.", 502);
   }
 }

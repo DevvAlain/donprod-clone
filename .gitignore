@@ -49,6 +49,9 @@ next-env.d.ts
 # Local temp files
 temp/
 
+# Locally uploaded media (served from /uploads/*, persisted via volume in prod)
+public/uploads/
+
 # Local screenshots / reverse-engineer dumps
 .playwright-mcp/
 clone-*.png

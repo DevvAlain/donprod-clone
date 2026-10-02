@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getYouTubeVideoId, isCloudinaryDeliveryUrl, getVimeoVideoId } from "@/lib/youtube";
+import { getYouTubeVideoId, isHostedVideoUrl, getVimeoVideoId } from "@/lib/youtube";
 
 const tagSlugSchema = z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80);
 
@@ -65,9 +65,9 @@ function validateVideo(data: { videoType?: "YOUTUBE" | "CLOUDINARY" | "VIMEO" | 
     if (data.videoPublicId !== null && data.videoPublicId !== undefined) context.addIssue({ code: "custom", path: ["videoPublicId"], message: "YouTube videos cannot have a public ID." });
   }
   if (data.videoType === "CLOUDINARY") {
-    if (!data.videoUrl) context.addIssue({ code: "custom", path: ["videoUrl"], message: "A Cloudinary URL is required." });
-    if (data.videoUrl && !isCloudinaryDeliveryUrl(data.videoUrl)) context.addIssue({ code: "custom", path: ["videoUrl"], message: "A valid Cloudinary delivery URL is required." });
-    if (!data.videoPublicId) context.addIssue({ code: "custom", path: ["videoPublicId"], message: "A Cloudinary public ID is required." });
+    if (!data.videoUrl) context.addIssue({ code: "custom", path: ["videoUrl"], message: "An uploaded video URL is required." });
+    if (data.videoUrl && !isHostedVideoUrl(data.videoUrl)) context.addIssue({ code: "custom", path: ["videoUrl"], message: "A valid uploaded video URL is required." });
+    if (!data.videoPublicId) context.addIssue({ code: "custom", path: ["videoPublicId"], message: "An uploaded video public ID is required." });
   }
   if (data.videoType === "VIMEO") {
     if (!data.videoUrl) context.addIssue({ code: "custom", path: ["videoUrl"], message: "A Vimeo URL is required." });

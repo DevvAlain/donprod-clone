@@ -98,6 +98,9 @@ COPY --from=builder --chown=node:node /app/public ./public
 RUN mkdir .next
 RUN chown node:node .next
 
+# Writable uploads dir (backed by a named volume in production)
+RUN mkdir -p ./public/uploads && chown node:node ./public/uploads
+
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=node:node /app/.next/standalone ./
