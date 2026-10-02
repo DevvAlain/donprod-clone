@@ -249,18 +249,9 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                         position: "relative",
                       }}
                     >
-                      <div
-                        style={{
-                          position: "absolute",
-                          width: "100%",
-                          height: "100%",
-                          backgroundImage: `url(${project.thumbPlaceholder})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                          transition: "filter 0.5s linear, transform 0.5s linear",
-                        }}
-                      />
+                      {/* Blurred placeholder backdrop removed: with contain-fit
+                          media it showed as a textured frame around the video.
+                          The full-thumb img below covers loading state. */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         className="full-thumb"
