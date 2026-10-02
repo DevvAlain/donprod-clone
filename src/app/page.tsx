@@ -144,8 +144,27 @@ export default function DonprodHomePage() {
       sessionStorage.setItem(getIntroStorageKey(), "1");
       return;
     }
-    if (firstProject && overlayTarget) setShowOverlay(true);
-  }, [firstProject, introComplete, isLoading, isMobile, loaderFinished, overlayTarget]);
+    if (firstProject && overlayTarget && !showOverlay) {
+      // Re-measure the centered tile right now: the rect captured at mount
+      // can be stale (fonts/images shifting layout, snap settling), which
+      // made the morph land off-center (shifted left).
+      const tiles = Array.from(document.querySelectorAll(".horizontal_project_wrapper .hpt__wrapper"));
+      const cx = window.innerWidth / 2;
+      let best: DOMRect | null = null;
+      let bestDist = Infinity;
+      for (const tile of tiles) {
+        const rect = tile.getBoundingClientRect();
+        if (rect.right < 0 || rect.left > window.innerWidth) continue;
+        const dist = Math.abs((rect.left + rect.right) / 2 - cx);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = rect;
+        }
+      }
+      if (best) setOverlayTarget(best);
+      setShowOverlay(true);
+    }
+  }, [firstProject, introComplete, isLoading, isMobile, loaderFinished, overlayTarget, showOverlay]);
 
   if (isMobile) {
     return (

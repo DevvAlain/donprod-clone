@@ -101,7 +101,8 @@ export function FloatingVideo({
             inset: 0,
             width: "100%",
             height: "100%",
-            objectFit: "cover",
+            // contain (not cover): show the full video frame, no top/bottom crop
+            objectFit: "contain",
             filter: "brightness(0.6) grayscale(0.2)",
           }}
         >
@@ -118,7 +119,8 @@ export function FloatingVideo({
           inset: 0,
           width: "100%",
           height: "100%",
-          objectFit: "cover",
+          // contain (not cover): show the full placeholder, no crop
+          objectFit: "contain",
           filter: "brightness(0.6) grayscale(0.2)",
         }}
       />

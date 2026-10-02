@@ -369,13 +369,6 @@ export function ScrollList({
               alt="I8 STUDIO"
               style={{ display: "block", width: "90%", maxWidth: "90%", height: "auto", margin: "0 auto" }}
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="home-lower-logo"
-              src="/sites/donprod-uk-ee6ef50a/root-8a5edab2/images/logo-lower.png"
-              alt="PROD"
-              style={{ display: "block", width: "42%", height: "auto", margin: "8px auto 0" }}
-            />
           </div>
           <div className="vertical_project_wrapper" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
             {tileList}

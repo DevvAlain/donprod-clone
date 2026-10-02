@@ -124,7 +124,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
           <img
             src={project.thumbMobile || project.thumbPlaceholder}
             alt={project.title}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
           />
           {project.mobileVideo ? (
             <InlineVideo
@@ -139,7 +139,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                 inset: 0,
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "contain",
                 opacity: isActive ? 1 : isHovered ? 0.7 : 0,
                 transition: "opacity 0.3s",
               }}
@@ -291,7 +291,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                     left: 0,
                     height: "100%",
                     width: "100%",
-                    objectFit: "cover",
+                    objectFit: "contain",
                     opacity: shouldBeExpanded ? 1 : isHovered ? 0.7 : 0,
                     transition: "opacity 0.3s",
                   }}
