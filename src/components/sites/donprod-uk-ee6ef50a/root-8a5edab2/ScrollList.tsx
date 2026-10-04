@@ -238,9 +238,9 @@ export function ScrollList({
         const i = n % count;
         const filtered = filter !== null && !projects[i].tags.includes(filter);
         const baseOpacity = filtered ? 0 : 1;
-        // Only 3 frames visible: center + immediate neighbors fade in,
-        // anything further out is fully hidden (still occupies layout space).
-        const vis = abs >= 0.38 ? 0 : 1 - abs * 1.1;
+        // Only neighbors visible: anything past ~1.3 frames out is hidden
+        // (tiles are ~0.45 viewport widths now).
+        const vis = abs >= 0.62 ? 0 : 1 - abs * 0.9;
         el.style.opacity = String(baseOpacity * vis);
         el.style.transform = `perspective(1200px) rotateY(${(offset * -55).toFixed(2)}deg) translateZ(${(-abs * 380).toFixed(1)}px)`;
         el.style.zIndex = abs < 0.15 ? "3" : "2";
@@ -322,8 +322,8 @@ export function ScrollList({
             opacity: isFiltered ? 0 : 1,
             pointerEvents: isFiltered ? "none" : "auto",
             flexShrink: 0,
-            // 3 frames per viewport: center + one neighbor each side
-            width: "clamp(280px, 30vw, 480px)",
+            // Large showcase frames (~2 per viewport + peek neighbors)
+            width: "clamp(420px, 45vw, 720px)",
           }}
         >
           <ProjectTile

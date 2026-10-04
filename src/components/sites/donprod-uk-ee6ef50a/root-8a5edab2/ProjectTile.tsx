@@ -178,7 +178,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
       style={{
         display: "block",
         width: "100%",
-        height: isMobile ? "auto" : "20dvh",
+        height: isMobile ? "auto" : "30dvh",
         padding: isMobile ? 0 : 10,
         position: "relative",
         flexShrink: 0,
