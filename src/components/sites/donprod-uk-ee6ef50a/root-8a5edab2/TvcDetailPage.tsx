@@ -65,7 +65,7 @@ export function TvcDetailPage() {
           <p style={{ fontSize: 12, letterSpacing: "0.08em" }}>Loading…</p>
         ) : (
           <article style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: "0.02em" }}>{item.title}</h1>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: "0.02em", textAlign: "center" }}>{item.title}</h1>
             {item.imageUrl ? (
               <div style={{ width: "100%", overflow: "hidden", background: "#e7e7e7" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

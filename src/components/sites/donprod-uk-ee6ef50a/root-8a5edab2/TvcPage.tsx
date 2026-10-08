@@ -102,7 +102,7 @@ export function TvcPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
             {visible.map((item) => (
               <article key={item.id}>
-                <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 600, letterSpacing: "0.02em" }}>
+                <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 600, letterSpacing: "0.02em", textAlign: "center" }}>
                   <Link href={`/tvc/${item.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
                     {item.title}
                   </Link>
