@@ -67,9 +67,9 @@ export function TvcDetailPage() {
           <article style={{ display: "flex", flexDirection: "column", gap: 32 }}>
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: "0.02em" }}>{item.title}</h1>
             {item.imageUrl ? (
-              <div style={{ width: "100%", aspectRatio: "16 / 9", overflow: "hidden", background: "#e7e7e7" }}>
+              <div style={{ width: "100%", overflow: "hidden", background: "#e7e7e7" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.title} style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={item.imageUrl} alt={item.title} style={{ display: "block", width: "100%", height: "auto", margin: "0 auto" }} />
               </div>
             ) : null}
             {item.description ? (
@@ -80,9 +80,9 @@ export function TvcDetailPage() {
               </div>
             ) : null}
             {item.gallery.map((entry, index) => (
-              <div key={`${entry.imageUrl}-${index}`} style={{ width: "100%", aspectRatio: "16 / 9", overflow: "hidden", background: "#e7e7e7" }}>
+              <div key={`${entry.imageUrl}-${index}`} style={{ width: "100%", overflow: "hidden", background: "#e7e7e7" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={entry.imageUrl} alt={`${item.title} — ${index + 1}`} loading="lazy" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={entry.imageUrl} alt={`${item.title} — ${index + 1}`} loading="lazy" style={{ display: "block", width: "100%", height: "auto", margin: "0 auto" }} />
               </div>
             ))}
           </article>

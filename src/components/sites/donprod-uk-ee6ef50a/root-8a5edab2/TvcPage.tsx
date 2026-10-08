@@ -111,14 +111,15 @@ export function TvcPage() {
                   <Link
                     href={`/tvc/${item.slug}`}
                     aria-label={item.title}
-                    style={{ display: "block", width: "100%", aspectRatio: "16 / 9", overflow: "hidden", background: "#e7e7e7" }}
+                    // Natural aspect: full image, no top/bottom crop, centered.
+                    style={{ display: "block", width: "100%", overflow: "hidden", background: "#e7e7e7" }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.imageUrl}
                       alt={item.title}
                       loading="lazy"
-                      style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+                      style={{ display: "block", width: "100%", height: "auto" }}
                     />
                   </Link>
                 ) : null}
