@@ -47,8 +47,30 @@ function Control({ children, onClick }: { children: React.ReactNode; onClick: ()
 }
 
 function ReadyText({ text, mobile = false }: { text: string; mobile?: boolean }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  // Flexibly fit one line into its frame: long text shrinks, short text
+  // grows (within caps). Re-measured on text/viewport change.
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const fit = () => {
+      const max = mobile ? 12 : 15;
+      const min = 3;
+      let size = max;
+      element.style.fontSize = `${size}vw`;
+      // Shrink until the single line fits its frame.
+      let guard = 60;
+      while (element.scrollWidth > element.clientWidth + 1 && size > min && guard-- > 0) {
+        size -= 0.25;
+        element.style.fontSize = `${size}vw`;
+      }
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [text, mobile]);
   return (
-    <div className={mobile ? styles.mobileStatement : styles.statement} aria-label={text}>
+    <div ref={ref} className={mobile ? styles.mobileStatement : styles.statement} aria-label={text}>
       {text.split("").map((character, index) => (
         <span key={`${character}-${index}`} style={{ animationDelay: `${0.25 + index * 0.05}s` }}>
           {character === " " ? " " : character}

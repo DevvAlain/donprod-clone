@@ -35,9 +35,11 @@ model TvcItem {
   id            String   @id @default(uuid()) @db.Uuid
   type          TvcType
   title         String   @db.VarChar(240)
+  slug          String   @unique @db.VarChar(140)
   description   String?  @db.Text
   imageUrl      String?  @db.Text
   imagePublicId String?  @db.Text
+  gallery       Json?    @db.JsonB
   displayOrder  Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

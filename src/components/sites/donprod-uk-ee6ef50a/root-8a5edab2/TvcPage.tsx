@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Navbar } from "./Navbar";
-import styles from "./TvcPage.module.css";
 
 type TvcType = "HIGHLIGHTED" | "CSR";
 type TabKey = "highlighted" | "csr";
@@ -11,9 +11,19 @@ interface TvcItem {
   id: string;
   type: TvcType;
   title: string;
+  slug: string;
   description: string | null;
   imageUrl: string | null;
 }
+
+const wrap: React.CSSProperties = {
+  minHeight: "100dvh",
+  background: "#f6f6f6",
+  color: "#111",
+  fontFamily: '"IBM Plex Mono", monospace',
+};
+
+const monoSmall: React.CSSProperties = { fontSize: 12, letterSpacing: "0.08em" };
 
 export function TvcPage() {
   const [items, setItems] = useState<TvcItem[]>([]);
@@ -42,64 +52,85 @@ export function TvcPage() {
   }, [items, active]);
 
   return (
-    <main className={styles.page}>
+    <main style={wrap}>
       <Navbar />
-      <div style={{ paddingTop: 70 }} />
-      <div className={styles.about}>
-        <div className={styles.header}>
-          <div className={styles.kicker}>TỔNG QUAN I8</div>
-          <h1 className={styles.title}>DẤU MỐC</h1>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "90px 20px 80px" }}>
+        <h1
+          style={{
+            margin: "0 0 8px",
+            textAlign: "center",
+            fontFamily: '"Heading Now", sans-serif',
+            fontStretch: "condensed",
+            fontWeight: 800,
+            fontSize: "clamp(40px, 7vw, 96px)",
+            lineHeight: 0.9,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          COMMERCIAL
+        </h1>
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 48 }} role="tablist" aria-label="Commercial tabs">
+          {(["highlighted", "csr"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={active === tab}
+              onClick={() => setActive(tab)}
+              style={{
+                border: 0,
+                background: "none",
+                cursor: "pointer",
+                font: "inherit",
+                ...monoSmall,
+                textTransform: "uppercase",
+                opacity: active === tab ? 1 : 0.45,
+                textDecoration: active === tab ? "underline" : "none",
+                textUnderlineOffset: 4,
+              }}
+            >
+              {tab === "highlighted" ? "Highlighted" : "CSR"}
+            </button>
+          ))}
         </div>
 
-        <div className={styles.tabs} role="tablist" aria-label="Commercial tabs">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={active === "highlighted"}
-            onClick={() => setActive("highlighted")}
-            className={`${styles.tab} ${active === "highlighted" ? styles.tabActive : ""}`}
-          >
-            HIGHLIGHTED PROJECT
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={active === "csr"}
-            onClick={() => setActive("csr")}
-            className={`${styles.tab} ${active === "csr" ? styles.tabActive : ""}`}
-          >
-            CSR PROJECT
-          </button>
-        </div>
-
-        <div className={styles.list}>
-          {loading ? (
-            <div className={styles.status}>Đang tải…</div>
-          ) : visible.length === 0 ? (
-            <div className={styles.status}>Chưa có dự án TVC.</div>
-          ) : (
-            visible.map((item) => (
-              <section key={item.id} className={styles.item}>
-                <div className={styles.lines}>
-                  <span className={styles.postTitle}>{item.title}</span>
-                </div>
+        {loading ? (
+          <p style={{ textAlign: "center", ...monoSmall }}>Loading…</p>
+        ) : visible.length === 0 ? (
+          <p style={{ textAlign: "center", ...monoSmall }}>No projects yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
+            {visible.map((item) => (
+              <article key={item.id}>
+                <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 600, letterSpacing: "0.02em" }}>
+                  <Link href={`/tvc/${item.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
+                    {item.title}
+                  </Link>
+                </h2>
                 {item.imageUrl ? (
-                  <div className={styles.imageWrap}>
+                  <Link
+                    href={`/tvc/${item.slug}`}
+                    aria-label={item.title}
+                    style={{ display: "block", width: "100%", aspectRatio: "16 / 9", overflow: "hidden", background: "#e7e7e7" }}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.title} className={styles.postImg} loading="lazy" />
-                  </div>
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      loading="lazy"
+                      style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </Link>
                 ) : null}
                 {item.description ? (
-                  <div className={styles.desc}>
-                    {item.description.split(/\n{2,}/).map((paragraph, index) => (
-                      <p key={index} className={styles.descText}>{paragraph}</p>
-                    ))}
-                  </div>
+                  <p style={{ margin: "16px 0 0", fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                    {item.description}
+                  </p>
                 ) : null}
-              </section>
-            ))
-          )}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

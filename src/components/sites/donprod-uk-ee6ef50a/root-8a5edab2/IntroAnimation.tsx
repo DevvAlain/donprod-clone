@@ -541,7 +541,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
                 animate={animOutContent ? "exit" : "animate"}
                 style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
               >
-                DIRECTOR SHOWCASE
+                I8 STUDIO SHOWCASE
                 <DiamondSVG />
                 <DiamondSVG />
               </motion.span>
@@ -560,9 +560,9 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
                 whiteSpace: "nowrap",
               }}
             >
-              DOUBLE OR{" "}
+              EVERY SECOND{" "}
               <span style={{ position: "relative", display: "inline-block" }}>
-                NOTHING
+                PRINCELESS
                 <motion.span
                   initial={{ scaleX: 0 }}
                   animate={animOutContent ? { scaleX: 0 } : { scaleX: 1 }}
@@ -593,7 +593,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               >
                 <DiamondSVG />
                 <DiamondSVG />
-                2023 - 2026
+                2016-2026
               </motion.span>
             </div>
           </div>
@@ -608,7 +608,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               overflow: "hidden",
             }}
           >
-            {/* Left: BORN RISK TAKERS */}
+            {/* Left: Where Moments Become Eternal */}
             <div style={{ overflow: "hidden" }}>
               <motion.span
                 custom={3}
@@ -617,13 +617,11 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
                 animate={animOutContent ? "exit" : "animate"}
                 style={{ display: "inline-block" }}
               >
-                BORN{" "}
-                <span style={{ color: "#c11012" }}>RISK</span>
-                {" "}TAKERS
+                Where Moments Become Eternal
               </motion.span>
             </div>
 
-            {/* Right: @DONPROD */}
+            {/* Right: @I8STUDIOVN */}
             <div style={{ overflow: "hidden" }}>
               <motion.span
                 custom={4}
@@ -632,7 +630,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
                 animate={animOutContent ? "exit" : "animate"}
                 style={{ display: "inline-block" }}
               >
-                @I8STUDIO
+                @I8STUDIOVN
               </motion.span>
             </div>
           </div>

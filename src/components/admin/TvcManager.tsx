@@ -13,9 +13,11 @@ interface TvcItem {
   id: string;
   type: TvcType;
   title: string;
+  slug: string;
   description: string | null;
   imageUrl: string | null;
   imagePublicId?: string | null;
+  gallery: Array<{ imageUrl: string; publicId?: string | null }>;
   displayOrder: number;
 }
 
@@ -24,9 +26,11 @@ type UploadResult = { url: string; publicId: string };
 const emptyDraft: Omit<TvcItem, "id" | "displayOrder"> = {
   type: "HIGHLIGHTED",
   title: "",
+  slug: "",
   description: "",
   imageUrl: null,
   imagePublicId: null,
+  gallery: [],
 };
 
 const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#465fff] focus:bg-white focus:ring-2 focus:ring-indigo-100";
@@ -64,9 +68,11 @@ export function TvcManager() {
     setDraft({
       type: item.type,
       title: item.title,
+      slug: item.slug,
       description: item.description ?? "",
       imageUrl: item.imageUrl,
       imagePublicId: item.imagePublicId ?? null,
+      gallery: item.gallery.map((entry) => ({ ...entry })),
     });
   }
 
@@ -85,15 +91,32 @@ export function TvcManager() {
     }
   }
 
+  async function uploadGallery(file: File) {
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const result = await adminRequest<UploadResult>("/api/admin/media/upload-image", { method: "POST", body });
+      setDraft((current) => ({ ...current, gallery: [...current.gallery, { imageUrl: result.url, publicId: result.publicId }] }));
+      toast("Gallery image uploaded. Save to persist it.");
+    } catch (cause) {
+      toastError(cause instanceof Error ? cause.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
     const payload = {
       type: draft.type,
       title: draft.title,
+      slug: draft.slug.trim() ? draft.slug : undefined,
       description: draft.description?.trim() ? draft.description : null,
       imageUrl: draft.imageUrl,
       imagePublicId: draft.imagePublicId,
+      gallery: draft.gallery,
     };
     try {
       if (editingId && editingId !== "new") {
@@ -191,6 +214,9 @@ export function TvcManager() {
       <label className="grid gap-2 text-sm font-medium text-slate-700">Title
         <input required className={inputClass} value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} />
       </label>
+      <label className="grid gap-2 text-sm font-medium text-slate-700">Slug
+        <input className={inputClass} value={draft.slug} placeholder="Auto from title if empty" onChange={(event) => setDraft((current) => ({ ...current, slug: event.target.value }))} />
+      </label>
       <label className="grid gap-2 text-sm font-medium text-slate-700">Description
         <textarea rows={8} className={inputClass} value={draft.description ?? ""} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} />
       </label>
@@ -203,6 +229,24 @@ export function TvcManager() {
             <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); event.currentTarget.value = ""; }} />
           </label>
           {draft.imageUrl ? <button type="button" className="text-xs text-slate-500 underline" onClick={() => setDraft((current) => ({ ...current, imageUrl: null, imagePublicId: null }))}>Remove</button> : null}
+        </div>
+      </div>
+      <div className="grid gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Gallery (detail page, vertical stack)</span>
+        {draft.gallery.length ? (
+          <div className="grid gap-2 sm:grid-cols-3">
+            {draft.gallery.map((entry, galleryIndex) => (
+              <div key={`${entry.imageUrl}-${galleryIndex}`} className="relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-cover bg-center" style={{ backgroundImage: `url(${entry.imageUrl})` }}>
+                <button type="button" aria-label="Remove gallery image" className="absolute right-2 top-2 rounded-full bg-slate-900/80 p-2 text-white" onClick={() => setDraft((current) => ({ ...current, gallery: current.gallery.filter((_, i) => i !== galleryIndex) }))}><Trash2 size={14} /></button>
+              </div>
+            ))}
+          </div>
+        ) : <span className="text-xs text-slate-500">No gallery images yet.</span>}
+        <div className="flex flex-wrap items-center gap-3">
+          <label className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-700 ${uploading ? "opacity-60" : ""}`}>
+            <Upload size={14} />{uploading ? "Uploading…" : "Add gallery image"}
+            <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadGallery(file); event.currentTarget.value = ""; }} />
+          </label>
         </div>
       </div>
       <button disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#465fff] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3a4fe6] disabled:opacity-60"><Save size={16} />{saving ? "Saving…" : "Save"}</button>

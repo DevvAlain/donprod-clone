@@ -17,7 +17,7 @@
 .desktopContent { position: absolute; inset: 0; display: flex; flex-direction: column; padding-top: 0; }
 .row { display: flex; flex: 0 0 auto; min-height: 0; width: 100%; }
 .upper { height: 35vh; mix-blend-mode: difference; }
-.middle { height: 40vh; }
+.middle { height: 40vh; overflow: hidden; }
 .lower { height: 25vh; }
 .leftDivide { position: relative; flex: 0 0 80%; min-width: 0; padding: 0 15px 10px 20px; mix-blend-mode: difference; overflow: hidden; }
 .rightDivide { position: relative; flex: 0 0 20%; min-width: 0; padding: 20px 20px 10px 15px; overflow: hidden; }
@@ -34,8 +34,8 @@
 @keyframes ready-in { to { transform: translateY(0); } }
 .socials { position: absolute; right: 15px; bottom: 10px; left: 20px; display: flex; justify-content: space-between; gap: 18px; }
 
-.btsRight { padding: 0; }
-.btsColour { position: relative; width: 100%; height: 100%; transition: filter 1s ease; }
+.btsRight { padding: 0; overflow: hidden; }
+.btsColour { position: relative; width: 100%; height: 100%; overflow: hidden; transition: filter 1s ease; }
 .btsGrey { filter: grayscale(1); }
 .btsHider { position: absolute; inset: 0; overflow: hidden; }
 .btsStack { position: absolute; inset: 0; animation: polaroid-in 1.5s cubic-bezier(.16,1,.3,1) both; }
