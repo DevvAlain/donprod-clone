@@ -7,6 +7,11 @@ import { Navbar } from "./Navbar";
 type TvcType = "HIGHLIGHTED" | "CSR";
 type TabKey = "highlighted" | "csr";
 
+const TABS: Array<{ key: TabKey; label: string }> = [
+  { key: "highlighted", label: "Photoshoot Campaign" },
+  { key: "csr", label: "TV Commercial" },
+];
+
 interface TvcItem {
   id: string;
   type: TvcType;
@@ -70,13 +75,13 @@ export function TvcPage() {
           COMMERCIAL
         </h1>
         <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 48 }} role="tablist" aria-label="Commercial tabs">
-          {(["highlighted", "csr"] as const).map((tab) => (
+          {TABS.map((tab) => (
             <button
-              key={tab}
+              key={tab.key}
               type="button"
               role="tab"
-              aria-selected={active === tab}
-              onClick={() => setActive(tab)}
+              aria-selected={active === tab.key}
+              onClick={() => setActive(tab.key)}
               style={{
                 border: 0,
                 background: "none",
@@ -84,12 +89,12 @@ export function TvcPage() {
                 font: "inherit",
                 ...monoSmall,
                 textTransform: "uppercase",
-                opacity: active === tab ? 1 : 0.45,
-                textDecoration: active === tab ? "underline" : "none",
+                opacity: active === tab.key ? 1 : 0.45,
+                textDecoration: active === tab.key ? "underline" : "none",
                 textUnderlineOffset: 4,
               }}
             >
-              {tab === "highlighted" ? "Highlighted" : "CSR"}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -99,38 +104,95 @@ export function TvcPage() {
         ) : visible.length === 0 ? (
           <p style={{ textAlign: "center", ...monoSmall }}>No projects yet.</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
+          <>
+          <div className="tvc-grid">
             {visible.map((item) => (
-              <article key={item.id}>
-                <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 600, letterSpacing: "0.02em", textAlign: "center" }}>
-                  <Link href={`/tvc/${item.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
-                    {item.title}
-                  </Link>
-                </h2>
-                {item.imageUrl ? (
-                  <Link
-                    href={`/tvc/${item.slug}`}
-                    aria-label={item.title}
-                    // Natural aspect: full image, no top/bottom crop, centered.
-                    style={{ display: "block", width: "100%", overflow: "hidden", background: "#e7e7e7" }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      loading="lazy"
-                      style={{ display: "block", width: "100%", height: "auto" }}
-                    />
-                  </Link>
-                ) : null}
+              <article key={item.id} className="tvc-card">
+                <Link
+                  href={`/tvc/${item.slug}`}
+                  aria-label={item.title}
+                  className="tvc-thumb"
+                >
+                  {item.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.imageUrl} alt={item.title} loading="lazy" />
+                  ) : null}
+                  <span className="tvc-scrim" aria-hidden="true" />
+                  <span className="tvc-title">{item.title}</span>
+                </Link>
+                <p className="tvc-name">{item.title}</p>
                 {item.description ? (
-                  <p style={{ margin: "16px 0 0", fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                    {item.description}
-                  </p>
+                  <p className="tvc-caption">{item.description}</p>
                 ) : null}
               </article>
             ))}
           </div>
+          <style>{`
+            .tvc-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+            @media (min-width: 640px) { .tvc-grid { grid-template-columns: repeat(2, 1fr); } }
+            @media (min-width: 1024px) { .tvc-grid { grid-template-columns: repeat(3, 1fr); } }
+            .tvc-card { min-width: 0; }
+            .tvc-thumb {
+              position: relative;
+              display: block;
+              width: 100%;
+              aspect-ratio: 16 / 10;
+              overflow: hidden;
+              border-radius: 22px;
+              background: #e7e7e7;
+              color: #fff;
+              text-decoration: none;
+            }
+            .tvc-thumb img {
+              display: block;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transition: transform .8s cubic-bezier(.16,1,.3,1);
+            }
+            .tvc-thumb:hover img { transform: scale(1.05); }
+            .tvc-scrim {
+              position: absolute;
+              inset: auto 0 0 0;
+              height: 55%;
+              background: linear-gradient(to top, rgba(0,0,0,.75), transparent);
+              opacity: 0;
+              transition: opacity .45s ease;
+              pointer-events: none;
+            }
+            .tvc-title {
+              position: absolute;
+              right: 18px;
+              bottom: 14px;
+              left: 18px;
+              font-size: 17px;
+              font-weight: 600;
+              letter-spacing: .02em;
+              transform: translateY(130%);
+              opacity: 0;
+              transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .45s ease;
+              pointer-events: none;
+            }
+            .tvc-thumb:hover .tvc-scrim, .tvc-thumb:focus-visible .tvc-scrim { opacity: 1; }
+            .tvc-thumb:hover .tvc-title, .tvc-thumb:focus-visible .tvc-title { transform: translateY(0); opacity: 1; }
+            .tvc-caption {
+              display: none;
+              margin: 12px 4px 0;
+              font-size: 13px;
+              line-height: 1.6;
+              white-space: pre-wrap;
+            }
+            .tvc-name {
+              display: none;
+              margin: 12px 4px 0;
+              font-size: 15px;
+              font-weight: 600;
+              letter-spacing: .02em;
+            }
+            .tvc-name + .tvc-caption { margin-top: 6px; }
+            @media (hover: none) { .tvc-caption, .tvc-name { display: block; } }
+          `}</style>
+          </>
         )}
       </div>
     </main>

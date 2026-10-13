@@ -175,7 +175,7 @@ export function TvcManager() {
         </div>
         <div className="flex flex-wrap gap-2">
           {(["ALL", "HIGHLIGHTED", "CSR"] as const).map((value) => (
-            <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-xl px-3 py-2 text-xs font-medium ${filter === value ? "bg-[#465fff] text-white" : "border border-slate-200 text-slate-600"}`}>{value === "ALL" ? "All" : value === "HIGHLIGHTED" ? "Highlighted" : "CSR"}</button>
+            <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-xl px-3 py-2 text-xs font-medium ${filter === value ? "bg-[#465fff] text-white" : "border border-slate-200 text-slate-600"}`}>{value === "ALL" ? "All" : value === "HIGHLIGHTED" ? "Photoshoot Campaign" : "TV Commercial"}</button>
           ))}
           <button type="button" onClick={startCreate} className="inline-flex items-center gap-2 rounded-xl bg-[#465fff] px-3 py-2 text-xs font-medium text-white"><Plus size={14} />New</button>
         </div>
@@ -207,8 +207,8 @@ export function TvcManager() {
       </div>
       <label className="grid gap-2 text-sm font-medium text-slate-700">Tab
         <select className={inputClass} value={draft.type} onChange={(event) => setDraft((current) => ({ ...current, type: event.target.value as TvcType }))}>
-          <option value="HIGHLIGHTED">Highlighted project</option>
-          <option value="CSR">CSR project</option>
+          <option value="HIGHLIGHTED">Photoshoot Campaign</option>
+          <option value="CSR">TV Commercial</option>
         </select>
       </label>
       <label className="grid gap-2 text-sm font-medium text-slate-700">Title
