@@ -102,6 +102,7 @@ function CollageDetail({ item }: { item: TvcDetail }) {
               key={`${frame.imageUrl}-${frameIndex}`}
               className={`tvc-frame${row.length === 1 || (row.length === 3 && frameIndex === 1) ? " tvc-frame-main" : ""}`}
             >
+              <div aria-hidden="true" className="tvc-frame-blur" style={{ backgroundImage: `url(${frame.imageUrl})` }} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={frame.imageUrl} alt={frame.alt} loading="lazy" />
             </div>
@@ -111,6 +112,7 @@ function CollageDetail({ item }: { item: TvcDetail }) {
       <style>{`
         .tvc-collage { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; }
         .tvc-frame {
+          position: relative;
           flex: 1 1 0;
           min-width: 0;
           height: 30vh;
@@ -121,7 +123,14 @@ function CollageDetail({ item }: { item: TvcDetail }) {
           border-radius: 10px;
         }
         .tvc-frame-main { flex: 1.3 1 0; height: 44vh; max-height: 440px; }
-        .tvc-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+        .tvc-frame-blur {
+          position: absolute;
+          inset: -24px;
+          background-size: cover;
+          background-position: center;
+          filter: blur(24px) brightness(.72);
+        }
+        .tvc-frame img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
         .tvc-collage:only-of-type { margin-top: 8px; }
         @media (max-width: 640px) {
           .tvc-collage { flex-direction: column; }
