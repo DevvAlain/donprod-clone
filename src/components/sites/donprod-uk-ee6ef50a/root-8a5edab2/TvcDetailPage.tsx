@@ -64,30 +64,71 @@ export function TvcDetailPage() {
         ) : !item ? (
           <p style={{ fontSize: 12, letterSpacing: "0.08em" }}>Loading…</p>
         ) : (
-          <article style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: "0.02em", textAlign: "center" }}>{item.title}</h1>
-            {item.imageUrl ? (
-              <div style={{ width: "100%", overflow: "hidden", background: "#e7e7e7" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.title} style={{ display: "block", width: "100%", height: "auto", margin: "0 auto" }} />
-              </div>
-            ) : null}
-            {item.description ? (
-              <div style={{ fontSize: 13, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
-                {item.description.split(/\n{2,}/).map((paragraph, index) => (
-                  <p key={index} style={{ margin: "0 0 1em" }}>{paragraph}</p>
-                ))}
-              </div>
-            ) : null}
-            {item.gallery.map((entry, index) => (
-              <div key={`${entry.imageUrl}-${index}`} style={{ width: "100%", overflow: "hidden", background: "#e7e7e7" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={entry.imageUrl} alt={`${item.title} — ${index + 1}`} loading="lazy" style={{ display: "block", width: "100%", height: "auto", margin: "0 auto" }} />
-              </div>
-            ))}
-          </article>
+          <CollageDetail item={item} />
         )}
       </div>
     </main>
+  );
+}
+
+function CollageDetail({ item }: { item: TvcDetail }) {
+  const frames = [
+    ...(item.imageUrl ? [{ imageUrl: item.imageUrl, alt: item.title }] : []),
+    ...item.gallery.map((entry, index) => ({
+      imageUrl: entry.imageUrl,
+      alt: `${item.title} — ${index + 1}`,
+    })),
+  ];
+  // Groups of 3: middle frame is the large center piece.
+  const rows: typeof frames[] = [];
+  for (let i = 0; i < frames.length; i += 3) rows.push(frames.slice(i, i + 3));
+
+  return (
+    <article style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+      <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: "0.02em", textAlign: "center" }}>
+        {item.title}
+      </h1>
+      {item.description ? (
+        <div style={{ fontSize: 13, lineHeight: 1.8, whiteSpace: "pre-wrap", textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
+          {item.description.split(/\n{2,}/).map((paragraph, index) => (
+            <p key={index} style={{ margin: "0 0 1em" }}>{paragraph}</p>
+          ))}
+        </div>
+      ) : null}
+      {rows.map((row, rowIndex) => (
+        <div key={rowIndex} className="tvc-collage">
+          {row.map((frame, frameIndex) => (
+            <div
+              key={`${frame.imageUrl}-${frameIndex}`}
+              className={`tvc-frame${row.length === 1 || (row.length === 3 && frameIndex === 1) ? " tvc-frame-main" : ""}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={frame.imageUrl} alt={frame.alt} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      ))}
+      <style>{`
+        .tvc-collage { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; }
+        .tvc-frame {
+          flex: 1 1 0;
+          min-width: 0;
+          height: 30vh;
+          max-height: 300px;
+          overflow: hidden;
+          background: #fff;
+          border: 1px solid #dcdcdc;
+          border-radius: 10px;
+        }
+        .tvc-frame-main { flex: 1.3 1 0; height: 44vh; max-height: 440px; }
+        .tvc-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+        .tvc-collage:only-of-type { margin-top: 8px; }
+        @media (max-width: 640px) {
+          .tvc-collage { flex-direction: column; }
+          .tvc-frame, .tvc-frame-main { width: 100%; flex: none; height: auto; max-height: 62vh; }
+          .tvc-frame img { height: auto; max-height: 62vh; object-fit: contain; }
+        }
+      `}</style>
+    </article>
   );
 }
