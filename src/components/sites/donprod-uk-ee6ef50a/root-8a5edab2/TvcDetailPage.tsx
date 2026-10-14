@@ -46,8 +46,8 @@ export function TvcDetailPage() {
     <main
       style={{
         minHeight: "100dvh",
-        background: "#f6f6f6",
-        color: "#111",
+        background: "#141414",
+        color: "#f6f6f6",
         fontFamily: '"IBM Plex Mono", monospace',
       }}
     >
@@ -118,8 +118,8 @@ function CollageDetail({ item }: { item: TvcDetail }) {
           height: 30vh;
           max-height: 300px;
           overflow: hidden;
-          background: #fff;
-          border: 1px solid #dcdcdc;
+          background: #1f1f1f;
+          border: 1px solid #383838;
           border-radius: 10px;
         }
         .tvc-frame-main { flex: 1.3 1 0; height: 44vh; max-height: 440px; }

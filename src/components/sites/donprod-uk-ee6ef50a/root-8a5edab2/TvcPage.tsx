@@ -23,8 +23,8 @@ interface TvcItem {
 
 const wrap: React.CSSProperties = {
   minHeight: "100dvh",
-  background: "#f6f6f6",
-  color: "#111",
+  background: "#141414",
+  color: "#f6f6f6",
   fontFamily: '"IBM Plex Mono", monospace',
 };
 
@@ -140,8 +140,8 @@ export function TvcPage() {
               aspect-ratio: 16 / 10;
               overflow: hidden;
               border-radius: 22px;
-              background: #e7e7e7;
-              color: #fff;
+              background: #1f1f1f;
+              color: #f6f6f6;
               text-decoration: none;
             }
             .tvc-thumb img {
