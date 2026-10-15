@@ -36,8 +36,8 @@ function TvcCredits({ item }: { item: TvcDetail }) {
           .tvc-credits-right { align-items: flex-start !important; text-align: left !important; }
         }
       `}</style>
-      <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "flex-end", width: "100%", marginTop: 10, overflow: "hidden" }}>
-        <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden" }}>
+      <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "center", width: "100%", marginTop: 10, overflow: "hidden" }}>
+        <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden", textAlign: "center" }}>
           {item.title}
         </div>
       </div>
