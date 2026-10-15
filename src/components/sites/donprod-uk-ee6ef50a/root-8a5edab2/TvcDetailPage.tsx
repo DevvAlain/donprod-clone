@@ -22,7 +22,7 @@ function TvcCredits({ item }: { item: TvcDetail }) {
   const mono = '"IBM Plex Mono", monospace';
   const small: React.CSSProperties = {
     fontFamily: mono,
-    fontSize: "max(min(1.75vw, 11px), 9px)",
+    fontSize: "max(min(2vw, 13px), 10px)",
     color: "#f6f6f6",
     whiteSpace: "nowrap",
   };
