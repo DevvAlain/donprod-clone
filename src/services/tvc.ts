@@ -7,6 +7,11 @@ export interface TvcGalleryImage {
   publicId?: string | null;
 }
 
+export interface TvcCredit {
+  label: string;
+  value: string;
+}
+
 export interface TvcItem {
   id: string;
   type: TvcType;
@@ -16,6 +21,9 @@ export interface TvcItem {
   imageUrl: string | null;
   imagePublicId?: string | null;
   gallery: TvcGalleryImage[];
+  credits: TvcCredit[];
+  dateLabel: string | null;
+  location: string | null;
   displayOrder: number;
   updatedAt?: string;
 }
@@ -31,6 +39,17 @@ function parseGallery(value: unknown): TvcGalleryImage[] {
     .filter((entry) => entry.imageUrl.length > 0);
 }
 
+function parseCredits(value: unknown): TvcCredit[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
+    .map((entry) => ({
+      label: typeof entry.label === "string" ? entry.label : "",
+      value: typeof entry.value === "string" ? entry.value : "",
+    }))
+    .filter((entry) => entry.label.length > 0 && entry.value.length > 0);
+}
+
 function fromRow(row: TvcItemRow, includeAdmin = false): TvcItem {
   return {
     id: row.id,
@@ -41,6 +60,9 @@ function fromRow(row: TvcItemRow, includeAdmin = false): TvcItem {
     imageUrl: row.imageUrl,
     imagePublicId: includeAdmin ? row.imagePublicId : undefined,
     gallery: parseGallery(row.gallery),
+    credits: parseCredits(row.credits),
+    dateLabel: row.dateLabel,
+    location: row.location,
     displayOrder: row.displayOrder,
     updatedAt: includeAdmin ? row.updatedAt.toISOString() : undefined,
   };
@@ -81,6 +103,9 @@ export async function createTvcItem(input: TvcItemInput) {
       imageUrl: input.imageUrl ?? null,
       imagePublicId: input.imagePublicId ?? null,
       gallery: (input.gallery ?? []) as unknown as Prisma.InputJsonValue,
+      credits: (input.credits ?? []) as unknown as Prisma.InputJsonValue,
+      dateLabel: input.dateLabel ?? null,
+      location: input.location ?? null,
       displayOrder: (highest._max.displayOrder ?? -1) + 1,
     },
   });
@@ -102,6 +127,11 @@ export async function updateTvcItem(id: string, input: TvcItemUpdate) {
       ...(input.gallery !== undefined
         ? { gallery: input.gallery as unknown as Prisma.InputJsonValue }
         : {}),
+      ...(input.credits !== undefined
+        ? { credits: input.credits as unknown as Prisma.InputJsonValue }
+        : {}),
+      ...(input.dateLabel !== undefined ? { dateLabel: input.dateLabel } : {}),
+      ...(input.location !== undefined ? { location: input.location } : {}),
     },
   });
   return fromRow(row, true);

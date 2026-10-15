@@ -41,6 +41,9 @@ model TvcItem {
   imagePublicId String?  @db.Text
   gallery       Json?    @db.JsonB
   displayOrder  Int      @default(0)
+  credits       Json?
+  dateLabel     String?  @db.VarChar(120)
+  location      String?  @db.VarChar(160)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

@@ -7,11 +7,67 @@ import { Navbar } from "./Navbar";
 
 interface TvcDetail {
   id: string;
+  type: "HIGHLIGHTED" | "CSR";
   title: string;
   slug: string;
   description: string | null;
   imageUrl: string | null;
   gallery: Array<{ imageUrl: string; publicId?: string | null }>;
+  credits: Array<{ label: string; value: string }>;
+  dateLabel: string | null;
+  location: string | null;
+}
+
+const TAB_LABEL: Record<TvcDetail["type"], string> = {
+  HIGHLIGHTED: "Photoshoot Campaign",
+  CSR: "TV Commercial",
+};
+
+function TvcCredits({ item }: { item: TvcDetail }) {
+  const mono = '"IBM Plex Mono", monospace';
+  const small: React.CSSProperties = {
+    fontFamily: mono,
+    fontSize: "max(min(1.75vw, 11px), 9px)",
+    color: "#f6f6f6",
+    whiteSpace: "nowrap",
+  };
+  if (!item.credits.length && !item.dateLabel && !item.location) return null;
+  return (
+    <div className="video_aux__wrapper tvc-credits" style={{ padding: "15px 0 0", marginBottom: 15, textTransform: "uppercase" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .tvc-credits-row { flex-direction: column !important; gap: 24px !important; }
+          .tvc-credits-left, .tvc-credits-right { width: 100% !important; }
+          .tvc-credits-right { align-items: flex-start !important; text-align: left !important; }
+        }
+      `}</style>
+      <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", width: "100%", marginTop: 10, overflow: "hidden" }}>
+        <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden" }}>
+          {item.title}
+        </div>
+        <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden", textAlign: "right" }}>
+          {TAB_LABEL[item.type]}
+        </div>
+      </div>
+      <div className="tvc-credits-row" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", paddingTop: 60 }}>
+        <div className="tvc-credits-left" style={{ display: "flex", flexDirection: "row", width: "50%" }}>
+          <div style={{ paddingRight: "5.5vw", ...small }}>CREDIT</div>
+          <div style={{ display: "flex", flexDirection: "row", minWidth: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", paddingRight: 45, gap: 2 }}>
+              {item.credits.map((entry) => <div key={entry.label} style={small}>{entry.label}</div>)}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {item.credits.map((entry) => <div key={entry.label} style={small}>{entry.value}</div>)}
+            </div>
+          </div>
+        </div>
+        <div className="tvc-credits-right" style={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-end", width: "50%", textAlign: "right" }}>
+          {item.dateLabel ? <div style={{ ...small, paddingBottom: 30 }}>{item.dateLabel}</div> : null}
+          {item.location ? <div style={small}>{item.location}</div> : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function TvcDetailPage() {
@@ -109,6 +165,7 @@ function CollageDetail({ item }: { item: TvcDetail }) {
           ))}
         </div>
       ))}
+      <TvcCredits item={item} />
       <style>{`
         .tvc-collage { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; }
         .tvc-frame {

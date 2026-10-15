@@ -18,6 +18,9 @@ interface TvcItem {
   imageUrl: string | null;
   imagePublicId?: string | null;
   gallery: Array<{ imageUrl: string; publicId?: string | null }>;
+  credits: Array<{ label: string; value: string }>;
+  dateLabel: string | null;
+  location: string | null;
   displayOrder: number;
 }
 
@@ -31,6 +34,9 @@ const emptyDraft: Omit<TvcItem, "id" | "displayOrder"> = {
   imageUrl: null,
   imagePublicId: null,
   gallery: [],
+  credits: [],
+  dateLabel: "",
+  location: "",
 };
 
 const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#465fff] focus:bg-white focus:ring-2 focus:ring-indigo-100";
@@ -73,6 +79,9 @@ export function TvcManager() {
       imageUrl: item.imageUrl,
       imagePublicId: item.imagePublicId ?? null,
       gallery: item.gallery.map((entry) => ({ ...entry })),
+      credits: item.credits.map((entry) => ({ ...entry })),
+      dateLabel: item.dateLabel ?? "",
+      location: item.location ?? "",
     });
   }
 
@@ -117,6 +126,9 @@ export function TvcManager() {
       imageUrl: draft.imageUrl,
       imagePublicId: draft.imagePublicId,
       gallery: draft.gallery,
+      credits: draft.credits.filter((entry) => entry.label.trim() && entry.value.trim()),
+      dateLabel: (draft.dateLabel ?? "").trim() ? draft.dateLabel : null,
+      location: (draft.location ?? "").trim() ? draft.location : null,
     };
     try {
       if (editingId && editingId !== "new") {
@@ -248,6 +260,25 @@ export function TvcManager() {
             <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadGallery(file); event.currentTarget.value = ""; }} />
           </label>
         </div>
+      </div>
+      <div className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Credits</span>
+        {draft.credits.length ? draft.credits.map((entry, creditIndex) => (
+          <div key={creditIndex} className="grid grid-cols-[1fr_2fr_auto] items-center gap-2">
+            <input className={inputClass} placeholder="DIRECTOR" value={entry.label} onChange={(event) => setDraft((current) => ({ ...current, credits: current.credits.map((row, i) => i === creditIndex ? { ...row, label: event.target.value } : row) }))} />
+            <input className={inputClass} placeholder="TUNGAGE" value={entry.value} onChange={(event) => setDraft((current) => ({ ...current, credits: current.credits.map((row, i) => i === creditIndex ? { ...row, value: event.target.value } : row) }))} />
+            <button type="button" aria-label="Remove credit" className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:border-red-300 hover:text-red-600" onClick={() => setDraft((current) => ({ ...current, credits: current.credits.filter((_, i) => i !== creditIndex) }))}><Trash2 size={14} /></button>
+          </div>
+        )) : <span className="text-xs text-slate-500">No credits yet.</span>}
+        <button type="button" className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700" onClick={() => setDraft((current) => ({ ...current, credits: [...current.credits, { label: "", value: "" }] }))}><Plus size={14} />Add credit</button>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="grid gap-2 text-sm font-medium text-slate-700">Date
+          <input className={inputClass} placeholder="DECEMBER 2025" value={draft.dateLabel ?? ""} onChange={(event) => setDraft((current) => ({ ...current, dateLabel: event.target.value }))} />
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-slate-700">Location
+          <input className={inputClass} placeholder="PHAN RANG" value={draft.location ?? ""} onChange={(event) => setDraft((current) => ({ ...current, location: event.target.value }))} />
+        </label>
       </div>
       <button disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#465fff] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3a4fe6] disabled:opacity-60"><Save size={16} />{saving ? "Saving…" : "Save"}</button>
     </form>
