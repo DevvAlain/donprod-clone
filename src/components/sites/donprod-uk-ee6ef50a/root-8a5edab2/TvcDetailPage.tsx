@@ -18,11 +18,6 @@ interface TvcDetail {
   location: string | null;
 }
 
-const TAB_LABEL: Record<TvcDetail["type"], string> = {
-  HIGHLIGHTED: "Photoshoot Campaign",
-  CSR: "TV Commercial",
-};
-
 function TvcCredits({ item }: { item: TvcDetail }) {
   const mono = '"IBM Plex Mono", monospace';
   const small: React.CSSProperties = {
@@ -41,12 +36,9 @@ function TvcCredits({ item }: { item: TvcDetail }) {
           .tvc-credits-right { align-items: flex-start !important; text-align: left !important; }
         }
       `}</style>
-      <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", width: "100%", marginTop: 10, overflow: "hidden" }}>
+      <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "flex-end", width: "100%", marginTop: 10, overflow: "hidden" }}>
         <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden" }}>
           {item.title}
-        </div>
-        <div style={{ fontFamily: '"Sporty Pro Black", sans-serif', fontSize: "4vw", fontStretch: "extra-condensed", fontWeight: 700, lineHeight: 0.8, whiteSpace: "nowrap", overflow: "hidden", textAlign: "right" }}>
-          {TAB_LABEL[item.type]}
         </div>
       </div>
       <div className="tvc-credits-row" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", paddingTop: 60 }}>
