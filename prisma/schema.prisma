@@ -44,6 +44,7 @@ model TvcItem {
   credits       Json?
   dateLabel     String?  @db.VarChar(120)
   location      String?  @db.VarChar(160)
+  youtubeUrl    String?  @db.VarChar(2048)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

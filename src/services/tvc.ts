@@ -1,5 +1,6 @@
 import type { Prisma, TvcItem as TvcItemRow, TvcType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { normalizeYouTubeUrl } from "@/lib/youtube";
 import type { TvcItemInput, TvcItemUpdate } from "@/lib/tvc-validation";
 
 export interface TvcGalleryImage {
@@ -24,6 +25,7 @@ export interface TvcItem {
   credits: TvcCredit[];
   dateLabel: string | null;
   location: string | null;
+  youtubeUrl: string | null;
   displayOrder: number;
   updatedAt?: string;
 }
@@ -63,6 +65,7 @@ function fromRow(row: TvcItemRow, includeAdmin = false): TvcItem {
     credits: parseCredits(row.credits),
     dateLabel: row.dateLabel,
     location: row.location,
+    youtubeUrl: row.youtubeUrl,
     displayOrder: row.displayOrder,
     updatedAt: includeAdmin ? row.updatedAt.toISOString() : undefined,
   };
@@ -106,6 +109,7 @@ export async function createTvcItem(input: TvcItemInput) {
       credits: (input.credits ?? []) as unknown as Prisma.InputJsonValue,
       dateLabel: input.dateLabel ?? null,
       location: input.location ?? null,
+      youtubeUrl: input.youtubeUrl ? normalizeYouTubeUrl(input.youtubeUrl) : null,
       displayOrder: (highest._max.displayOrder ?? -1) + 1,
     },
   });
@@ -132,6 +136,9 @@ export async function updateTvcItem(id: string, input: TvcItemUpdate) {
         : {}),
       ...(input.dateLabel !== undefined ? { dateLabel: input.dateLabel } : {}),
       ...(input.location !== undefined ? { location: input.location } : {}),
+      ...(input.youtubeUrl !== undefined
+        ? { youtubeUrl: input.youtubeUrl ? normalizeYouTubeUrl(input.youtubeUrl) : null }
+        : {}),
     },
   });
   return fromRow(row, true);

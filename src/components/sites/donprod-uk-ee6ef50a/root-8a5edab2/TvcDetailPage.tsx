@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { getYouTubeVideoId } from "@/lib/youtube";
 import { Navbar } from "./Navbar";
 
 interface TvcDetail {
@@ -16,6 +17,34 @@ interface TvcDetail {
   credits: Array<{ label: string; value: string }>;
   dateLabel: string | null;
   location: string | null;
+  youtubeUrl: string | null;
+}
+
+function TvcVideo({ item }: { item: TvcDetail }) {
+  const id = item.youtubeUrl ? getYouTubeVideoId(item.youtubeUrl) : null;
+  if (!id) return null;
+  return (
+    <div className="tvc-video">
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1`}
+        title={item.title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+      <style>{`
+        .tvc-video {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          border: 1px solid #383838;
+          border-radius: 10px;
+          background: #000;
+        }
+        .tvc-video iframe { display: block; width: 100%; height: 100%; border: 0; }
+      `}</style>
+    </div>
+  );
 }
 
 function TvcCredits({ item }: { item: TvcDetail }) {
@@ -143,6 +172,7 @@ function CollageDetail({ item }: { item: TvcDetail }) {
           ))}
         </div>
       ) : null}
+      <TvcVideo item={item} />
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="tvc-collage">
           {row.map((frame, frameIndex) => (

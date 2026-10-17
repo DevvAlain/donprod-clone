@@ -1,6 +1,14 @@
 import { z } from "zod";
 
+import { getYouTubeVideoId } from "@/lib/youtube";
+
 const imageUrl = z.string().trim().url().max(2048).refine((value) => /^https?:\/\//i.test(value), "Only HTTP(S) URLs are allowed.");
+
+const youtubeUrl = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine((value) => getYouTubeVideoId(value) !== null, "A valid YouTube URL is required.");
 
 const slug = z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(140);
 
@@ -25,6 +33,7 @@ export const tvcItemSchema = z.object({
   credits: z.array(creditEntry).max(40).optional(),
   dateLabel: z.string().trim().max(120).nullable().optional(),
   location: z.string().trim().max(160).nullable().optional(),
+  youtubeUrl: youtubeUrl.nullable().optional(),
 }).strict();
 
 export const tvcItemUpdateSchema = tvcItemSchema.partial();

@@ -21,6 +21,7 @@ interface TvcItem {
   credits: Array<{ label: string; value: string }>;
   dateLabel: string | null;
   location: string | null;
+  youtubeUrl: string | null;
   displayOrder: number;
 }
 
@@ -37,6 +38,7 @@ const emptyDraft: Omit<TvcItem, "id" | "displayOrder"> = {
   credits: [],
   dateLabel: "",
   location: "",
+  youtubeUrl: "",
 };
 
 const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#465fff] focus:bg-white focus:ring-2 focus:ring-indigo-100";
@@ -54,6 +56,13 @@ export function TvcManager() {
     () => items.filter((item) => filter === "ALL" || item.type === filter),
     [items, filter],
   );
+
+  const youtubePreview = useMemo(() => {
+    const value = draft.youtubeUrl?.trim();
+    if (!value) return null;
+    const match = value.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+    return match ? `https://www.youtube-nocookie.com/embed/${match[1]}` : null;
+  }, [draft.youtubeUrl]);
 
   function load() {
     void adminRequest<TvcItem[]>("/api/admin/tvc")
@@ -82,6 +91,7 @@ export function TvcManager() {
       credits: item.credits.map((entry) => ({ ...entry })),
       dateLabel: item.dateLabel ?? "",
       location: item.location ?? "",
+      youtubeUrl: item.youtubeUrl ?? "",
     });
   }
 
@@ -129,6 +139,7 @@ export function TvcManager() {
       credits: draft.credits.filter((entry) => entry.label.trim() && entry.value.trim()),
       dateLabel: (draft.dateLabel ?? "").trim() ? draft.dateLabel : null,
       location: (draft.location ?? "").trim() ? draft.location : null,
+      youtubeUrl: (draft.youtubeUrl ?? "").trim() ? draft.youtubeUrl : null,
     };
     try {
       if (editingId && editingId !== "new") {
@@ -279,6 +290,14 @@ export function TvcManager() {
         <label className="grid gap-2 text-sm font-medium text-slate-700">Location
           <input className={inputClass} placeholder="PHAN RANG" value={draft.location ?? ""} onChange={(event) => setDraft((current) => ({ ...current, location: event.target.value }))} />
         </label>
+      </div>
+      <div className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">YouTube video (TV Commercial)</span>
+        <label className="grid gap-2 text-sm font-medium text-slate-700">YouTube URL
+          <input className={inputClass} type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.youtubeUrl ?? ""} onChange={(event) => setDraft((current) => ({ ...current, youtubeUrl: event.target.value }))} />
+        </label>
+        {youtubePreview ? <iframe className="aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-black" src={youtubePreview} title="YouTube video preview" allowFullScreen /> : null}
+        {draft.youtubeUrl?.trim() && !youtubePreview ? <span className="text-xs text-red-600">Enter a valid YouTube URL.</span> : null}
       </div>
       <button disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#465fff] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3a4fe6] disabled:opacity-60"><Save size={16} />{saving ? "Saving…" : "Save"}</button>
     </form>
