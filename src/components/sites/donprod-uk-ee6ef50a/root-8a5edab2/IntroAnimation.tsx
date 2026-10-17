@@ -562,7 +562,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
             >
               EVERY SECOND{" "}
               <span style={{ position: "relative", display: "inline-block" }}>
-                PRINCELESS
+                PRICELESS
                 <motion.span
                   initial={{ scaleX: 0 }}
                   animate={animOutContent ? { scaleX: 0 } : { scaleX: 1 }}
