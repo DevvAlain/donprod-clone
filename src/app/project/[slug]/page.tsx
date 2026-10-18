@@ -11,9 +11,13 @@ interface PageProps {
 
 const FALLBACK_IMAGE = "/seo/og-archive.jpg";
 
+function projectLabel(project: { title: string; artist: string | null }) {
+  return project.artist ? `${project.title} (${project.artist})` : project.title;
+}
+
 function buildTitle(project: { title: string; artist: string | null; seoTitle?: string | null }) {
   if (project.seoTitle) return project.seoTitle;
-  return `${project.title}${project.artist ? ` — ${project.artist}` : ""} — I8 STUDIO`;
+  return `${projectLabel(project)} — I8 STUDIO`;
 }
 
 function buildDescription(project: {
@@ -26,7 +30,7 @@ function buildDescription(project: {
   if (explicit) return explicit.slice(0, 155);
   const body = project.description?.trim();
   if (body && body.length >= 110) return body.slice(0, 155);
-  const subject = project.artist ? `${project.title} by ${project.artist}` : project.title;
+  const subject = project.artist ? `${project.title} (${project.artist})` : project.title;
   return `${subject} — a project by I8 STUDIO. Watch the film, browse the stills and read the full credits.`;
 }
 
