@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { DonprodProject } from "@/types/donprod";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { InlineVideo } from "./InlineVideo";
 
 interface HomeArchiveViewProps {
@@ -229,8 +230,12 @@ export function HomeArchiveView({
               {imageSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={imageSrc}
+                  src={sizedImageSrc(imageSrc, 960)}
+                  srcSet={sizedImageSrcSet(imageSrc, [480, 960, 1440])}
+                  sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "100%",

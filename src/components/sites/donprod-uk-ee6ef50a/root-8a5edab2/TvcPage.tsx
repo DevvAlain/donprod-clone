@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { Navbar } from "./Navbar";
 
 type TvcType = "HIGHLIGHTED" | "CSR";
@@ -30,12 +31,17 @@ const wrap: React.CSSProperties = {
 
 const monoSmall: React.CSSProperties = { fontSize: 12, letterSpacing: "0.08em" };
 
-export function TvcPage() {
-  const [items, setItems] = useState<TvcItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export function TvcPage({ initialItems = [] }: { initialItems?: TvcItem[] }) {
+  const [items, setItems] = useState<TvcItem[]>(initialItems);
+  const [loading, setLoading] = useState(initialItems.length === 0);
   const [active, setActive] = useState<TabKey>("highlighted");
 
   useEffect(() => {
+    if (initialItems.length > 0) {
+      setItems(initialItems);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     void fetch("/api/tvc", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -49,7 +55,7 @@ export function TvcPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialItems]);
 
   const visible = useMemo(() => {
     const type: TvcType = active === "highlighted" ? "HIGHLIGHTED" : "CSR";
@@ -116,7 +122,14 @@ export function TvcPage() {
                 >
                   {item.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt={item.title} loading="lazy" />
+                    <img
+                      src={sizedImageSrc(item.imageUrl, 960)}
+                      srcSet={sizedImageSrcSet(item.imageUrl, [480, 960, 1440])}
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      alt={item.title}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : null}
                   <span className="tvc-scrim" aria-hidden="true" />
                   <span className="tvc-title">{item.title}</span>

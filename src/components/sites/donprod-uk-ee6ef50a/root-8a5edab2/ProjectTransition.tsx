@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { sizedImageSrc } from "@/lib/image-url";
 
 export interface TransitionOrigin {
   x: number;
@@ -133,12 +134,12 @@ export function ProjectTransition({ thumbSrc, placeholderSrc, fromRect, onAnimat
         }}
       >
         <motion.img
-          src={placeholderSrc || thumbSrc}
+          src={sizedImageSrc(placeholderSrc || thumbSrc, 320)}
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(5px)" }}
         />
         <motion.img
-          src={thumbSrc}
+          src={sizedImageSrc(thumbSrc, 1440)}
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           initial={{ opacity: 0 }}

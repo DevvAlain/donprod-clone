@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { Navbar } from "./Navbar";
 import { InlineVideo } from "./InlineVideo";
 import styles from "./ContactPage.module.css";
@@ -100,7 +101,7 @@ function Carousel({ images, index, colour, onChange }: { images: ContactSettings
         <div className={styles.btsStack}>
           {image && !failed ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className={styles.btsImage} src={image.imageUrl} alt={`Behind the scenes still ${index + 1}`} onError={() => setFailed(true)} />
+            <img className={styles.btsImage} src={sizedImageSrc(image.imageUrl, 1200)} srcSet={sizedImageSrcSet(image.imageUrl, [480, 960, 1200])} sizes="(min-width: 768px) 33vw, 100vw" loading="lazy" decoding="async" alt={`Behind the scenes still ${index + 1}`} onError={() => setFailed(true)} />
           ) : (
             <div className={styles.btsFallback}>BTS IMAGE {String(index + 1).padStart(3, "0")}</div>
           )}
@@ -230,6 +231,7 @@ export function ContactPage() {
 
   return (
     <main className={styles.contactPage}>
+      <h1 className="sr-only">Contact I8 Studio — TVC & commercial production</h1>
       <ShowreelCursor url={contact.showreelUrl} disabled={mobile || showreel} onOpen={() => setShowreel(true)} />
       <Navbar />
       <div className={styles.grid} aria-hidden="true"><span className={styles.gridTop} /><span className={styles.gridBottom} /><span className={styles.gridLeft} /><span className={styles.gridRight} /></div>

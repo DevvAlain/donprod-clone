@@ -95,6 +95,13 @@ export async function listTvcItems(includeAdmin = false) {
   return rows.map((row) => fromRow(row, includeAdmin));
 }
 
+export async function listTvcSitemapEntries() {
+  return prisma.tvcItem.findMany({
+    select: { slug: true, updatedAt: true },
+    orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
+  });
+}
+
 export async function createTvcItem(input: TvcItemInput) {
   const highest = await prisma.tvcItem.aggregate({ _max: { displayOrder: true } });
   const row = await prisma.tvcItem.create({

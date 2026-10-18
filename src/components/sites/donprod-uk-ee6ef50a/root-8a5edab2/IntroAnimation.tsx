@@ -146,9 +146,9 @@ function easeInOutExpo(x: number): number {
   return (2 - Math.pow(2, -20 * x + 10)) / 2;
 }
 
-const LETTER_HOLD = 0.55;
+const LETTER_HOLD = 0.16;
 const COUNTER_DURATION = LETTER_CHARS.length * LETTER_HOLD;
-const VIDEO_IN_START = COUNTER_DURATION + 1;
+const VIDEO_IN_START = COUNTER_DURATION + 0.4;
 const LAST_LETTER = LETTER_CHARS.length - 1;
 const LETTER_CONFIGS: Array<{ char: string; anim: string; delay: number }> = LETTER_CHARS.map((char, index) => ({
   char,
@@ -278,12 +278,12 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
         doneRef.current = true;
         setLetterIndex(LAST_LETTER);
         setAnimOutContent(true);
-        schedule(() => setPercentVal(100), 500);
+        schedule(() => setPercentVal(100), 300);
         const remaining = Math.max((VIDEO_IN_START - elapsed) * 1000, 0);
         schedule(() => {
           setWrapperVisible(false);
-          schedule(onComplete, 600);
-        }, remaining + 300);
+          schedule(onComplete, 500);
+        }, remaining + 200);
         return;
       }
 

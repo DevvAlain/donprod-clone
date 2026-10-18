@@ -5,6 +5,7 @@ import { DonprodProject } from "@/types/donprod";
 import { BracketsWrapper } from "./BracketsWrapper";
 import { InlineVideo } from "./InlineVideo";
 import { getYouTubeEmbedUrl, getVimeoEmbedUrl } from "@/lib/youtube";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 
 interface Props {
   project: DonprodProject;
@@ -322,9 +323,9 @@ export function ProjectMainVideo({ project }: Props) {
         } : undefined}
       >
         <div className="proj_thumbnail__wrapper" style={{ position: "absolute", inset: 0, zIndex: 1, opacity: thumbnailReady && isPlaying ? 0 : 1, transition: "opacity .65s ease", filter: isWaiting ? "grayscale(1) contrast(2)" : "grayscale(0) contrast(1)" }}>
-          <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${project.thumbPlaceholder})`, backgroundSize: "cover", backgroundPosition: "center", filter: "blur(5px)" }} />
+          <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${sizedImageSrc(project.thumbPlaceholder, 320)})`, backgroundSize: "cover", backgroundPosition: "center", filter: "blur(5px)" }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={project.thumbDesktop} alt={project.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={sizedImageSrc(project.thumbDesktop, 1440)} srcSet={sizedImageSrcSet(project.thumbDesktop, [960, 1440, 1920])} sizes="100vw" alt={project.title} decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
 
         <div className="project-video" style={{ position: "absolute", inset: 0, zIndex: 2 }}>

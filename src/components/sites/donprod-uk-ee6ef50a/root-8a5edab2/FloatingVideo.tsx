@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { InlineVideo } from "./InlineVideo";
 
 interface FloatingVideoProps {
@@ -43,7 +44,7 @@ export function FloatingVideo({
           width: targetRect.width,
           height: targetRect.height,
         }}
-        transition={{ duration: 1.25, ease: [0.87, 0, 0.13, 1] }}
+        transition={{ duration: 0.95, ease: [0.87, 0, 0.13, 1] }}
         onAnimationComplete={onOverlayComplete}
         style={{
           position: "fixed",
@@ -54,9 +55,12 @@ export function FloatingVideo({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={desktopThumb}
+          src={sizedImageSrc(desktopThumb, 1920)}
+          srcSet={sizedImageSrcSet(desktopThumb, [960, 1440, 1920])}
+          sizes="100vw"
           alt=""
           aria-hidden="true"
+          decoding="async"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
         {desktopVideo ? (
@@ -65,7 +69,7 @@ export function FloatingVideo({
             loop
             muted
             playsInline
-            poster={desktopThumb}
+            poster={sizedImageSrc(desktopThumb, 960)}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           >
             <source src={desktopVideo} type="video/mp4" />
@@ -112,8 +116,12 @@ export function FloatingVideo({
       {/* fallback image shown behind video */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={desktopThumb}
+        src={sizedImageSrc(desktopThumb, 1920)}
+        srcSet={sizedImageSrcSet(desktopThumb, [960, 1440, 1920])}
+        sizes="100vw"
         alt=""
+        aria-hidden="true"
+        decoding="async"
         style={{
           position: "absolute",
           inset: 0,

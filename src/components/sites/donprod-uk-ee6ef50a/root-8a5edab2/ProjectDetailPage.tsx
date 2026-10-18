@@ -16,6 +16,10 @@ interface Props {
 export function ProjectDetailPage({ project, prevProject, nextProject, preview = false }: Props) {
   return (
     <>
+      <h1 className="sr-only">
+        {project.title}
+        {project.artist ? ` — ${project.artist}` : ""}
+      </h1>
       {!preview && project.slug ? <ProjectViewTracker slug={project.slug} /> : null}
     <div
       className="donprod-page project_page__wrapper"

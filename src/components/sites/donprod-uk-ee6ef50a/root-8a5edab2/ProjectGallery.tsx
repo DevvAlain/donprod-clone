@@ -9,6 +9,7 @@ import {
 } from "react";
 import { motion, useInView } from "framer-motion";
 import { DonprodProject } from "@/types/donprod";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 
 interface Props {
   project: DonprodProject;
@@ -46,7 +47,7 @@ function StillImage({
       }}>
       {still.placeholder ? (
         <img
-          src={still.placeholder}
+          src={sizedImageSrc(still.placeholder, 320)}
           alt=""
           aria-hidden="true"
           style={{
@@ -62,7 +63,11 @@ function StillImage({
       ) : null}
       {still.backgroundImage ? (
         <img
-          src={still.backgroundImage}
+          src={sizedImageSrc(still.backgroundImage, 960)}
+          srcSet={sizedImageSrcSet(still.backgroundImage, [480, 960, 1440])}
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          loading="lazy"
+          decoding="async"
           alt={alt}
           style={{
             position: "absolute",
@@ -755,7 +760,10 @@ export function ProjectGallery({ project }: Props) {
             PREV
           </button>
           <img
-            src={stills[expandedIndex].backgroundImage}
+            src={sizedImageSrc(stills[expandedIndex].backgroundImage, 1920)}
+            srcSet={sizedImageSrcSet(stills[expandedIndex].backgroundImage, [960, 1440, 1920])}
+            sizes="100vw"
+            decoding="async"
             alt={`${project.title} still ${expandedIndex + 1}`}
             onClick={(event) => event.stopPropagation()}
             style={{

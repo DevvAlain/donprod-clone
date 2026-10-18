@@ -14,20 +14,18 @@ export const metadata: Metadata = {
   title: "I8 Studio — Director Showcase, TVC & Commercial Production",
   description:
     "I8 Studio is a director-led showcase for TVC & commercial work (2023–2026). Browse the archive, watch TVCs and contact for production.",
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "/",
     siteName: "I8 STUDIO",
     title: "I8 Studio — Director Showcase, TVC & Commercial Production",
     description:
       "I8 Studio is a director-led showcase for TVC & commercial work (2023–2026). Browse the archive, watch TVCs and contact for production.",
     images: [
       {
-        url: "/icon.png",
+        url: "/seo/og-home.jpg",
+        width: 1200,
+        height: 630,
         alt: "I8 STUDIO",
       },
     ],
@@ -37,7 +35,7 @@ export const metadata: Metadata = {
     title: "I8 Studio — Director Showcase, TVC & Commercial Production",
     description:
       "I8 Studio is a director-led showcase for TVC & commercial work (2023–2026). Browse the archive, watch TVCs and contact for production.",
-    images: ["/icon.png"],
+    images: ["/seo/og-home.jpg"],
   },
   robots: {
     index: true,

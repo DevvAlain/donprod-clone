@@ -27,12 +27,19 @@ function loadProjects() {
   return inflight;
 }
 
-export function usePublicProjects() {
-  const [projects, setProjects] = useState<DonprodProject[]>(cached ?? []);
-  const [isLoading, setIsLoading] = useState(!cached);
+export function usePublicProjects(initialProjects?: DonprodProject[]) {
+  const seeded = initialProjects && initialProjects.length > 0 ? initialProjects : cached;
+  const [projects, setProjects] = useState<DonprodProject[]>(seeded ?? []);
+  const [isLoading, setIsLoading] = useState(!seeded);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialProjects && initialProjects.length > 0) {
+      cached = initialProjects;
+      setProjects(initialProjects);
+      setIsLoading(false);
+      return;
+    }
     let cancelled = false;
     void loadProjects()
       .then((data) => {
@@ -47,7 +54,7 @@ export function usePublicProjects() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialProjects]);
 
   return { projects, isLoading, error };
 }

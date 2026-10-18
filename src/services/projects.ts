@@ -129,6 +129,14 @@ export async function listProjects(includeHidden = false) {
   return projects.map((project) => toDonprodProject(project, includeHidden, includeHidden));
 }
 
+export async function listProjectSitemapEntries() {
+  return prisma.project.findMany({
+    where: { visibility: ProjectVisibility.VISIBLE },
+    select: { slug: true, updatedAt: true },
+    orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
+  });
+}
+
 export async function getProjectBySlug(slug: string, includeHidden = false) {
   const project = await prisma.project.findFirst({
     where: { slug: { equals: slug, mode: "insensitive" }, ...(includeHidden ? {} : { visibility: ProjectVisibility.VISIBLE }) },

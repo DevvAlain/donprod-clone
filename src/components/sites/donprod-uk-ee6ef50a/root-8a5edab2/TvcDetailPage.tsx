@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getYouTubeVideoId } from "@/lib/youtube";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { Navbar } from "./Navbar";
 
 interface TvcDetail {
@@ -91,12 +92,17 @@ function TvcCredits({ item }: { item: TvcDetail }) {
   );
 }
 
-export function TvcDetailPage() {
+export function TvcDetailPage({ initialItem }: { initialItem?: TvcDetail }) {
   const { slug } = useParams<{ slug: string }>();
-  const [item, setItem] = useState<TvcDetail | null>(null);
+  const [item, setItem] = useState<TvcDetail | null>(initialItem ?? null);
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
+    if (initialItem) {
+      setItem(initialItem);
+      setMissing(false);
+      return;
+    }
     let cancelled = false;
     void fetch(`/api/tvc/${encodeURIComponent(slug ?? "")}`, { cache: "no-store" })
       .then((response) => {
@@ -117,7 +123,7 @@ export function TvcDetailPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [slug, initialItem]);
 
   return (
     <main
@@ -175,16 +181,27 @@ function CollageDetail({ item }: { item: TvcDetail }) {
       <TvcVideo item={item} />
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="tvc-collage">
-          {row.map((frame, frameIndex) => (
-            <div
-              key={`${frame.imageUrl}-${frameIndex}`}
-              className={`tvc-frame${row.length === 1 || (row.length === 3 && frameIndex === 1) ? " tvc-frame-main" : ""}`}
-            >
-              <div aria-hidden="true" className="tvc-frame-blur" style={{ backgroundImage: `url(${frame.imageUrl})` }} />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={frame.imageUrl} alt={frame.alt} loading="lazy" />
-            </div>
-          ))}
+          {row.map((frame, frameIndex) => {
+            const isMain = row.length === 1 || (row.length === 3 && frameIndex === 1);
+            const frameWidth = isMain ? 1440 : 960;
+            return (
+              <div
+                key={`${frame.imageUrl}-${frameIndex}`}
+                className={`tvc-frame${isMain ? " tvc-frame-main" : ""}`}
+              >
+                <div aria-hidden="true" className="tvc-frame-blur" style={{ backgroundImage: `url(${sizedImageSrc(frame.imageUrl, 320)})` }} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={sizedImageSrc(frame.imageUrl, frameWidth)}
+                  srcSet={sizedImageSrcSet(frame.imageUrl, [480, 960, 1440])}
+                  sizes={isMain ? "(min-width: 900px) 560px, 100vw" : "(min-width: 900px) 380px, 100vw"}
+                  alt={frame.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            );
+          })}
         </div>
       ))}
       <TvcCredits item={item} />

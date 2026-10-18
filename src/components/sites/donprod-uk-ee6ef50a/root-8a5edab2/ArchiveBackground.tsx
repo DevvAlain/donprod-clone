@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { DonprodProject } from "@/types/donprod";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { InlineVideo } from "./InlineVideo";
 
 interface ArchiveBackgroundProps {
@@ -114,8 +115,11 @@ export function ArchiveBackground({ project, activeIdx, isVisible }: ArchiveBack
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={project.thumbnails.desktop}
+                  src={sizedImageSrc(project.thumbnails.desktop, 1920)}
+                  srcSet={sizedImageSrcSet(project.thumbnails.desktop, [960, 1440, 1920])}
+                  sizes="100vw"
                   alt={project.title}
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "100%",

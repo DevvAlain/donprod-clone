@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { sizedImageSrc, sizedImageSrcSet } from "@/lib/image-url";
 import { InlineVideo } from "./InlineVideo";
 
 interface ProjectTileProps {
@@ -10,6 +11,7 @@ interface ProjectTileProps {
     title: string;
     artist: string | null;
     thumbMobile: string;
+    thumbDesktop?: string;
     thumbPlaceholder: string;
     mobileVideo?: string;
   };
@@ -122,18 +124,22 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={project.thumbMobile || project.thumbPlaceholder}
+            src={sizedImageSrc(project.thumbMobile || project.thumbPlaceholder, 960)}
+            srcSet={sizedImageSrcSet(project.thumbMobile || project.thumbPlaceholder, [480, 960, 1440])}
+            sizes="100vw"
             alt={project.title}
+            loading="lazy"
+            decoding="async"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
           />
-          {project.mobileVideo ? (
+          {project.mobileVideo && (isActive || isHovered) ? (
             <InlineVideo
               ref={videoRef}
               autoPlay
               loop
               muted
               playsInline
-              poster={project.thumbMobile || project.thumbPlaceholder}
+              poster={sizedImageSrc(project.thumbMobile || project.thumbPlaceholder, 960)}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -255,8 +261,12 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         className="full-thumb"
-                        src={project.thumbMobile}
+                        src={sizedImageSrc(project.thumbDesktop || project.thumbMobile, 1440)}
+                        srcSet={sizedImageSrcSet(project.thumbDesktop || project.thumbMobile, [480, 960, 1440])}
+                        sizes="45vw"
                         alt={project.title}
+                        loading="lazy"
+                        decoding="async"
                         style={{
                           position: "absolute",
                           width: "100%",
@@ -268,7 +278,7 @@ export function ProjectTile({ project, isActive, isMobile = false, index, onActi
                   </div>
                 </div>
 
-                {project.mobileVideo ? <InlineVideo
+                {project.mobileVideo && (isActive || isHovered) ? <InlineVideo
                   ref={videoRef}
                   className="grid-item__hover"
                   autoPlay
